@@ -13,7 +13,7 @@
 #include <pmmintrin.h>
 
 namespace std_dsp {
-	struct SSE_ALIGN biquad_coeffs {
+	struct biquad_coeffs {
 		double a1, a2;
 		double b0, b1, b2;
 	};

@@ -12,9 +12,10 @@
 #include "../stateless_algorithms/mono.h"
 
 namespace std_dsp {
-	template <storage_size_t CHANNELS, typename STORAGE>
+	template <storage_size_t CHANNELS, typename IMPL, typename STORAGE>
 	class buffer_template final {
 	private:
+		IMPL impl;
 		STORAGE storage;
 	public:
 		using value_type = double;
@@ -158,9 +159,9 @@ namespace std_dsp {
 			return !(x == y);
 		}
 	};
-
+/*
 	template <typename STORAGE>
-	class buffer_template final<1, STORAGE> {
+	class buffer_template<1, STORAGE> {
 	private:
 		STORAGE storage;
 	public:
@@ -308,7 +309,7 @@ namespace std_dsp {
 			return !(x == y);
 		}
 	};
-
+*/
 	template <storage_size_t CHANNELS, storage_size_t SIZE>
 	using static_buffer = buffer_template<CHANNELS, static_storage<CHANNELS, SIZE>>;
 

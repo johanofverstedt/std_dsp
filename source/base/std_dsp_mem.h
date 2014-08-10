@@ -149,9 +149,9 @@ namespace std_dsp {
 		inline
 		const double* cbegin() const { return data; }
 		inline
-		double* end() { return storage_end(data, CHANNELS, SIZE); }
+		double* end() { return storage_end(data, CHANNELS, buf_size); }
 		inline
-		const double* cend() const { return storage_cend(data, CHANNELS, SIZE); }
+		const double* cend() const { return storage_cend(data, CHANNELS, buf_size); }
 		inline
 		double* operator()() { return begin(); }
 		inline
