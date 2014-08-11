@@ -6,13 +6,7 @@
 #include <tuple>
 #include "std_dsp_ranges.h"
 
-#ifdef WIN32
-#define SSE_ALIGN __declspec(align(16))
-#define AVX_ALIGN __declspec(align(32))
-#else
-#define SSE_ALIGN alignas(16)
-#define AVX_ALIGN alignas(32)
-#endif
+#include "base.h"
 
 namespace std_dsp {
 	template <typename I>

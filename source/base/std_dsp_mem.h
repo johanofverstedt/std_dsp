@@ -12,6 +12,8 @@
 
 #include "std_dsp_alignment.h"
 
+#include "base.h"
+
 namespace std_dsp {
 	using storage_size_t = std::int64_t;
 
@@ -95,10 +97,6 @@ namespace std_dsp {
 		storage_size_t raw_size() const { return CHANNELS * SIZE; }
 
 		void resize(storage_size_t n); //Not possible for static storage
-		//inline
-		//void resize(storage_size_t n) {
-		//	assert(false);
-		//}
 	};
 
 	template <storage_size_t CHANNELS>

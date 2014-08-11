@@ -12,8 +12,8 @@
 #include "../stateless_algorithms/mono.h"
 
 namespace std_dsp {
-	template <storage_size_t CHANNELS, typename IMPL, typename STORAGE>
-	class buffer_template final {
+	template <typename IMPL, typename STORAGE>
+	class buffer_t final {
 	private:
 		IMPL impl;
 		STORAGE storage;
@@ -27,8 +27,8 @@ namespace std_dsp {
 		using iterator = pointer;
 		using const_iterator = const iterator;
 
-		buffer_template() {}
-		buffer_template(difference_type n) { storage.resize(n); }
+		buffer_t() {}
+		buffer_t(difference_type n) { storage.resize(n); }
 
 		//Interleaved iterators
 
@@ -143,6 +143,7 @@ namespace std_dsp {
 		inline
 		void resize(difference_type n) {
 			storage.resize(n);
+			clear();
 		}
 
 		//Equality/inequality

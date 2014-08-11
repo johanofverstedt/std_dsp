@@ -14,7 +14,7 @@
 
 namespace std_dsp {
 	template <storage_size_t CHANNELS>
-	struct std_buffer {
+	struct split_buffer {
 		class iterator {
 		private:
 			STORAGE* s;
@@ -36,15 +36,18 @@ namespace std_dsp {
 		void rotate(STORAGE &s) {
 			;
 		}
-		template <typename STORAGE>
-		void clear(STORAGE &s) {
-			std_dsp::zero(s.raw_size(), s.begin());
-		}
+	};
 
-		template <typename STORAGE>
-		void fill(STORAGE &s, double x) {
-			std_dsp::assign(s.raw_size(), s.begin(), x);
-		}
+	template <storage_size_t CHANNELS>
+	struct interleaved_buffer {
+
+	};
+
+	template <typename IMPL>
+	struct delay_line {
+		storage_size_t pos;
+
+		
 	};
 }
 

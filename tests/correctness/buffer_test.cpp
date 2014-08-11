@@ -5,11 +5,10 @@
 
 TEST(BufferTest, Initialization) {
 	using namespace std_dsp;
-	buffer<1> buf1;
-	buf1.resize(256);
+	buffer<1, dynamic_storage> buf1(256);
 	buf1.clear();
 
-	buffer<1> buf2;
+	buffer<1, static_storage<256>> buf2;
 	buf2.resize(256);
 	buf2.clear();
 
