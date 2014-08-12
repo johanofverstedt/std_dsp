@@ -12,19 +12,26 @@
 #include "../stateless_algorithms/mono.h"
 
 namespace std_dsp {
-	template <typename IMPL, typename STORAGE>
+	template <typename I>
+	class stride_iterator {
+	private:
+		I it;
+	public:
+		using difference_type = typename std::iterator_traits<I>::difference_type;
+	};
+
+	template <typename STORAGE, bool INTERLEAVED = false>
 	class buffer_t final {
 	private:
-		IMPL impl;
 		STORAGE storage;
 	public:
-		using value_type = double;
-		using difference_type = storage_size_t;
-		using pointer = double*;
-		using const_pointer = const double*;
-		using reference = double&;
-		using const_reference = const double&;
-		using iterator = pointer;
+		using value_type = typename STORAGE::value_type;
+		using difference_type = typename STORAGE::difference_type;
+		using pointer = typename STORAGE::pointer;
+		using const_pointer = const pointer;
+		using reference = typename STORAGE::reference;
+		using const_reference = const reference;
+		using iterator = typename STORAGE::iterator;
 		using const_iterator = const iterator;
 
 		buffer_t() {}
@@ -33,63 +40,47 @@ namespace std_dsp {
 		//Interleaved iterators
 
 		const_iterator cbegin() const {
-			return const_iterator(storage.cbegin());
+			return impl.cbegin();
 		}
 		const_iterator cend() const {
-			return const_iterator(storage.cend());
+			return impl.cend();
 		}
 
 		iterator begin() {
-			return iterator(storage.begin());
+			return impl.begin();
 		}
 		iterator end() {
-			return iterator(storage.end());
-		}
-
-		inline
-		const_iterator begin() const {
-			return const_iterator(storage.cbegin());
-		}
-		inline
-		const_iterator end() const {
-			return const_iterator(storage.cend());
+			return impl.end();
 		}
 
 		//Split channel iterators
 
-		iterator begin(storage_size_t channel) {
-			return iterator(storage() + (channel * storage.size()));
+		iterator begin(difference_type channel) {
+			return impl.begin(channel);
 		}
-		iterator end(storage_size_t channel) {
-			return iterator(storage() + ((channel + 1) * storage.size()));
-		}
-
-		const_iterator begin(storage_size_t channel) const {
-			return const_iterator(storage() + (channel * storage.size()));
-		}
-		const_iterator end(storage_size_t channel) const {
-			return const_iterator(storage() + ((channel + 1) * storage.size()));
+		iterator end(difference_type channel) {
+			return impl.end(channel);
 		}
 
-		const_iterator cbegin(storage_size_t channel) {
-			return const_iterator(storage() + (channel * storage.size()));
+		const_iterator cbegin(difference_type channel) {
+			return impl.cbegin(channel);
 		}
-		const_iterator cend(storage_size_t channel) {
-			return const_iterator(storage() + ((channel + 1) * storage.size()));
+		const_iterator cend(difference_type channel) {
+			return impl.cend(channel);
 		}
 
 		inline
 		iterator operator*() {
-			return storage();
+			return impl.begin();
 		}
 		inline
 		const_iterator operator*() const {
-			return storage();
+			return impl.cbegin();
 		}
 
 		inline
-		iterator operator[](storage_size_t channel) {
-			return begin(channel);
+		iterator operator[](difference_type channel) {
+			return impl.begin(channel);
 		}
 
 		inline
@@ -100,7 +91,7 @@ namespace std_dsp {
 		//Query methods
 
 		inline
-		storage_size_t channels() const { return CHANNELS; }
+		difference_type channels() const { return impl.channels(); }
 		inline
 		difference_type size() const { return storage.size(); }
 		inline

@@ -7,9 +7,9 @@
 #include "functors.h"
 
 namespace std_dsp {
-	template <typename N, typename Op>
+	template <typename I, typename N, typename Op>
 	inline
-	void inplace_transform(double* first, N n, Op op) {
+	void inplace_transform(I first, N n, Op op) {
 		if(n == 0)
 			return;
 

@@ -3,6 +3,7 @@
 #define STD_DSP_MONO_FUNCTORS_GUARD
 
 #include <cstdlib>
+#include <cmath>
 
 #include "../../base/std_dsp_computational_basis.h"
 

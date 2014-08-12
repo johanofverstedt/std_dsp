@@ -15,8 +15,6 @@
 #include "base.h"
 
 namespace std_dsp {
-	using storage_size_t = std::int64_t;
-
 	template <typename N>
 	inline
 	double* alloc_buf(N n) {
@@ -157,7 +155,7 @@ namespace std_dsp {
 		inline
 		storage_size_t size() const { return buf_size; }
 		inline
-		storage_size_t raw_size() const { return CHANNELS * SIZE; }
+		storage_size_t raw_size() const { return CHANNELS * buf_size; }
 
 		inline
 		void resize(storage_size_t n) {
