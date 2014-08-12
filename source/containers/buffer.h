@@ -12,15 +12,107 @@
 #include "../stateless_algorithms/mono.h"
 
 namespace std_dsp {
-	template <typename I>
-	class stride_iterator {
+	class channel_iterator {
 	private:
-		I it;
+		double* ptr;
+		storage_size_t stride;
 	public:
-		using difference_type = typename std::iterator_traits<I>::difference_type;
+		channel_iterator() {}
+		channel_iterator(double* ptr, storage_size_t stride) : ptr(ptr), stride(stride) {}
+
+		inline
+		double* begin() {
+			return ptr;
+		}
+		inline
+		double* end() {
+			return ptr + stride;
+		}
+		inline
+		const double* begin() const {
+			return ptr;
+		}
+		inline
+		const double* end() const {
+			return ptr + stride;
+		}
+		inline
+		const double* cbegin() {
+			return ptr;
+		}
+		inline
+		const double* cend() {
+			return ptr + stride;
+		}
+		inline
+		const double* cbegin() const {
+			return ptr;
+		}
+		inline
+		const double* cend() const {
+			return ptr + stride;
+		}
+
+		inline
+		channel_iterator& operator++() {
+			ptr += stride;
+			return *this;
+		}
+		inline
+		channel_iterator operator++(int) {
+			channel_iterator tmp = *this;
+			ptr += stride;
+			return *this;
+		}
+		inline
+		channel_iterator& operator--() {
+			ptr -= stride;
+			return *this;
+		}
+		inline
+		channel_iterator operator--(int) {
+			channel_iterator tmp = *this;
+			ptr -= stride;
+			return *this;
+		}
+		inline
+		channel_iterator& operator+=(storage_size_t n) {
+			ptr += (stride * n);
+			return *this;
+		}
+		inline
+		channel_iterator& operator-=(storage_size_t n) {
+			ptr -= (stride * n);
+			return *this;
+		}
+
+		inline
+		double* operator*() { return ptr; }
+		inline
+		const double* operator*() const { return ptr; }
+
+		inline
+		double* operator[](storage_size_t n) {
+			return ptr + (n * stride);
+		}
+		inline
+		const double* operator[](storage_size_t n) const {
+			return ptr + (n * stride);
+		}
+
+		inline
+		friend
+		bool operator==(const channel_iterator& x, const channel_iterator& y) {
+			return x.ptr == y.ptr;
+		}
+		inline
+		friend
+		bool operator!=(const channel_iterator& x, const channel_iterator& y) {
+			return !(x == y);
+		}
 	};
 
-	template <typename STORAGE, bool INTERLEAVED = false>
+	template <typename STORAGE>
 	class buffer_t final {
 	private:
 		STORAGE storage;
@@ -37,61 +129,49 @@ namespace std_dsp {
 		buffer_t() {}
 		buffer_t(difference_type n) { storage.resize(n); }
 
-		//Interleaved iterators
-
-		const_iterator cbegin() const {
-			return impl.cbegin();
+		const channel_iterator cbegin() const {
+			return channel_iterator(storage.cbegin(), storage.size());
 		}
-		const_iterator cend() const {
-			return impl.cend();
+		const channel_iterator cend() const {
+			return channel_iterator(storage.cend(), storage.size());
 		}
 
-		iterator begin() {
-			return impl.begin();
+		channel_iterator begin() {
+			return channel_iterator(storage.begin(), storage.size());
 		}
-		iterator end() {
-			return impl.end();
+		channel_iterator end() {
+			return channel_iterator(storage.end(), storage.size());
 		}
 
-		//Split channel iterators
-
+		inline
 		iterator begin(difference_type channel) {
-			return impl.begin(channel);
+			return begin()[channel];
 		}
 		iterator end(difference_type channel) {
-			return impl.end(channel);
+			return end()[channel];
 		}
 
 		const_iterator cbegin(difference_type channel) {
-			return impl.cbegin(channel);
+			return cbegin()[channel];
 		}
 		const_iterator cend(difference_type channel) {
-			return impl.cend(channel);
-		}
-
-		inline
-		iterator operator*() {
-			return impl.begin();
-		}
-		inline
-		const_iterator operator*() const {
-			return impl.cbegin();
+			return cbegin()[channel];
 		}
 
 		inline
 		iterator operator[](difference_type channel) {
-			return impl.begin(channel);
+			return begin(channel);
 		}
 
 		inline
 		const_iterator operator[](storage_size_t channel) const {
-			return begin(channel);
+			return cbegin(channel);
 		}
 
 		//Query methods
 
 		inline
-		difference_type channels() const { return impl.channels(); }
+		difference_type channels() const { return storage.channels(); }
 		inline
 		difference_type size() const { return storage.size(); }
 		inline
@@ -100,7 +180,7 @@ namespace std_dsp {
 		//Utility methods
 
 		inline
-		void clear() { zero(CHANNELS * storage.size(), begin()); }
+		void clear() { zero(storage.channels() * storage.size(), begin()); }
 		inline
 		void clear(storage_size_t channel) {
 			zero(storage.size(), begin() + (storage.size() * channel));
@@ -111,7 +191,7 @@ namespace std_dsp {
 		}
 
 		inline
-		void fill(double x) { assign(CHANNELS * storage.size(), begin(), x); }
+		void fill(double x) { assign(storage.channels() * storage.size(), begin(), x); }
 		inline
 		void fill(storage_size_t channel, double x) {
 			assign(storage.size(), begin() + (storage.size() * channel), x);
@@ -123,187 +203,38 @@ namespace std_dsp {
 
 		inline
 		void randomize(double a = 0.0, double b = 1.0) {
-			std_dsp::randomize(CHANNELS * storage.size(), begin(), a, b);
+			std_dsp::randomize(storage.channels() * storage.size(), begin(), a, b);
 		}
 
 		inline
 		void undenormalize() {
-			std_dsp::undenormalize(storage(), CHANNELS * storage.size());
+			std_dsp::undenormalize(storage(), storage.channels() * storage.size());
 		}
 
 		inline
-		void resize(difference_type n) {
+		void resize(difference_type n, bool clear_storage = true) {
 			storage.resize(n);
-			clear();
+			if(clear_storage)
+				clear();
 		}
 
 		//Equality/inequality
 		friend
-		bool operator==(const buffer_template& x, const buffer_template& y) {
+		bool operator==(const buffer_t& x, const buffer_t& y) {
 			if(x.size() != y.size())
 				return false;
-			return std::equal(x.cbegin(), x.cend(), y.cbegin());
+			return std::equal(x.storage.cbegin(), x.storage.cend(), y.storage.cbegin());
 		}
 
 		inline
 		friend
-		bool operator!=(const buffer_template& x, const buffer_template& y) {
+		bool operator!=(const buffer_t& x, const buffer_t& y) {
 			return !(x == y);
 		}
 	};
-/*
-	template <typename STORAGE>
-	class buffer_template<1, STORAGE> {
-	private:
-		STORAGE storage;
-	public:
-		using value_type = double;
-		using difference_type = storage_size_t;
-		using pointer = double*;
-		using const_pointer = const double*;
-		using reference = double&;
-		using const_reference = const double&;
-		using iterator = pointer;
-		using const_iterator = const iterator;
 
-		buffer_template() {}
-		buffer_template(difference_type n) { storage.resize(n); }
-
-		const_iterator cbegin() const {
-			return const_iterator(storage.cbegin());
-		}
-		const_iterator cend() const {
-			return const_iterator(storage.cend());
-		}
-
-		iterator begin() {
-			return iterator(storage.begin());
-		}
-		iterator end() {
-			return iterator(storage.end());
-		}
-
-		inline
-		const_iterator begin() const {
-			return const_iterator(storage.cbegin());
-		}
-		inline
-		const_iterator end() const {
-			return const_iterator(storage.cend());
-		}
-
-		//Split channel iterators
-
-		iterator begin(storage_size_t channel) {
-			assert(channel == 0);
-			return iterator(storage() + (channel * storage.size()));
-		}
-		iterator end(storage_size_t channel) {
-			assert(channel == 0);
-			return iterator(storage() + ((channel + 1) * storage.size()));
-		
-		const_iterator begin(storage_size_t channel) const {
-			assert(channel == 0);
-			return const_iterator(storage() + (channel * storage.size()));
-		}
-		const_iterator end(storage_size_t channel) const {
-			assert(channel == 0);
-			return const_iterator(storage() + ((channel + 1) * storage.size()));
-		}
-
-		const_iterator cbegin(storage_size_t channel) {
-			assert(channel == 0);
-			return const_iterator(storage() + (channel * storage.size()));
-		}
-		const_iterator cend(storage_size_t channel) {
-			assert(channel == 0);
-			return const_iterator(storage() + ((channel + 1) * storage.size()));
-		}
-
-		inline
-		iterator operator*() {
-			return storage();
-		}
-		inline
-		const_iterator operator*() const {
-			return storage();
-		}
-
-		inline
-		iterator operator[](storage_size_t channel) {
-			return begin(channel);
-		}
-
-		inline
-		const_iterator operator[](storage_size_t channel) const {
-			return begin(channel);
-		}
-
-		//Query methods
-
-		inline
-		storage_size_t channels() const { return 1; }
-		inline
-		difference_type size() const { return storage.size(); }
-		inline
-		difference_type capacity() const { return storage.size(); }
-
-		//Utility methods
-
-		inline
-		void clear() { zero(CHANNELS * storage.size(), begin()); }
-		inline
-		void clear(storage_size_t channel) {
-			zero(storage.size(), begin() + (storage.size() * channel));
-		}
-		inline
-		void clear(storage_size_t channel, difference_type n) {
-			zero(n, begin() + (storage.size() * channel));
-		}
-
-		inline
-		void fill(double x) { assign(CHANNELS * storage.size(), begin(), x); }
-		inline
-		void fill(storage_size_t channel, double x) {
-			assign(storage.size(), begin() + (storage.size() * channel), x);
-		}
-		inline
-		void fill(storage_size_t channel, difference_type n, double x) {
-			assign(n, begin() + (storage.size() * channel), x);
-		}
-
-		inline
-		void randomize(double a = 0.0, double b = 1.0) {
-			std_dsp::randomize(CHANNELS * storage.size(), begin(), a, b);
-		}
-
-		inline
-		void undenormalize() {
-			std_dsp::undenormalize(storage(), CHANNELS * storage.size());
-		}
-
-		inline
-		void resize(difference_type n) {
-			storage.resize(n);
-		}
-
-		//Equality/inequality
-		friend
-		bool operator==(const buffer_template& x, const buffer_template& y) {
-			if(x.size() != y.size())
-				return false;
-			return std::equal(x.cbegin(), x.cend(), y.cbegin());
-		}
-
-		inline
-		friend
-		bool operator!=(const buffer_template& x, const buffer_template& y) {
-			return !(x == y);
-		}
-	};
-*/
 	template <storage_size_t CHANNELS, storage_size_t SIZE>
-	using static_buffer = buffer_template<CHANNELS, static_storage<CHANNELS, SIZE>>;
+	using static_buffer = buffer_t<static_storage<CHANNELS, SIZE>>;
 
 	template <storage_size_t SIZE>
 	using static_mono_buffer = static_buffer<1, SIZE>;
@@ -312,10 +243,9 @@ namespace std_dsp {
 	using static_stereo_buffer = static_buffer<2, SIZE>;
 
 	template <storage_size_t CHANNELS>
-	using buffer = buffer_template<CHANNELS, dynamic_storage<CHANNELS>>;
+	using buffer = buffer_t<dynamic_storage<CHANNELS>>;
 
 	using mono_buffer = buffer<1>;
-
 	using stereo_buffer = buffer<2>;
 }
 

@@ -11,6 +11,11 @@
 #include "containers/buffer.h"
 //#include "containers/delay_line.h"
 
+//Iterators
+#include "iterators/circular_iterator.h"
+#include "iterators/reverse_iterator.h"
+#include "iterators/stride_iterator.h"
+
 //Algorithms
 
 #include "stateless_algorithms/mono.h"

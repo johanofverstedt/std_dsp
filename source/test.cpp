@@ -1,15 +1,26 @@
 
+#include "std_dsp.h"
 #include "base/base.h"
 #include "base/std_dsp_computational_basis.h"
 #include "base/std_dsp_mem.h"
-#include "containers/iterators.h"
+#include "containers/buffer.h"
 
 #include "stateless_algorithms/mono.h"
 
 #include <iostream>
 
 int main(int argc, char** argv) {
+
+	std_dsp::buffer_t<std_dsp::static_storage<2, 256>> test_buf;
 	std_dsp::static_storage<2, 256> buf;
+
+	test_buf[0][0] = 1.0;
+	test_buf[1][0] = 2.0;
+	for(auto cit : test_buf) {
+		std::cout << *cit << " ";
+	}
+	std::cout << std::endl;
+
 	for(int i = 0; i < 256; ++i)
 		*(buf.begin() + i) = i;
 	std_dsp::static_storage<2, 256> buf_r;

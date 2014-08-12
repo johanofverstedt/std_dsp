@@ -74,6 +74,14 @@ namespace std_dsp {
 	private:
 		SSE_ALIGN double data[CHANNELS * SIZE];
 	public:
+		using value_type = double;
+		using pointer = value_type*;
+		using const_pointer = const pointer;
+		using reference = value_type&;
+		using const_reference = const reference;
+		using difference_type = storage_size_t;
+		using iterator = pointer;
+		using const_iterator = const_pointer;
 
 		inline
 		double* begin() { return data; }
@@ -103,6 +111,15 @@ namespace std_dsp {
 		double* data;
 		storage_size_t buf_size;
 	public:
+		using value_type = double;
+		using pointer = value_type*;
+		using const_pointer = const pointer;
+		using reference = value_type&;
+		using const_reference = const reference;
+		using difference_type = storage_size_t;
+		using iterator = pointer;
+		using const_iterator = const_pointer;
+
 		dynamic_storage() : data(nullptr), buf_size(0LL) {}
 		dynamic_storage(const dynamic_storage& x) {
 			data = nullptr;

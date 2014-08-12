@@ -32,6 +32,40 @@ namespace std_dsp {
 
 	template <typename I, typename N, typename O, typename Op>
 	inline
+	void copy_transform_vector(I first, N n, O out, Op op) {
+		std::pair<std::size_t, std::size_t> partitions = unroll_partition_8(n);
+		while(partitions.first) {
+			vector2_t x0 = load2_from(first, 0);
+			vector2_t x1 = load2_from(first, 2);
+			vector2_t x2 = load2_from(first, 4);
+			vector2_t x3 = load2_from(first, 6);
+
+			partitions.first -= 8;
+
+			x0 = op(x0);
+			x1 = op(x1);
+			x2 = op(x2);
+			x3 = op(x3);
+
+			store2_to(out, 0, x0);
+			store2_to(out, 2, x1);
+			store2_to(out, 4, x2);
+			store2_to(out, 6, x3);
+
+			first += 8;
+			out += 8;
+		}
+
+		while(partitions.second) {
+			--partitions.second;
+			*out = op(*first);
+			++first;
+			++out;
+		}
+	}
+
+	template <typename I, typename N, typename O, typename Op>
+	inline
 	void copy_transform(I first, N n, O out, Op op) {
 		while(n) {
 			if(!check_alignment(first, out)) {
@@ -50,35 +84,7 @@ namespace std_dsp {
 			auto fast_first = get_fast_iterator(first);
 			auto fast_out = get_fast_iterator(out);
 
-			std::pair<std::size_t, std::size_t> partitions = unroll_partition_8(fast_n);
-			while(partitions.first) {
-				vector2_t x0 = load2_from(fast_first, 0);
-				vector2_t x1 = load2_from(fast_first, 2);
-				vector2_t x2 = load2_from(fast_first, 4);
-				vector2_t x3 = load2_from(fast_first, 6);
-
-				partitions.first -= 8;
-
-				x0 = op(x0);
-				x1 = op(x1);
-				x2 = op(x2);
-				x3 = op(x3);
-
-				store2_to(fast_out, 0, x0);
-				store2_to(fast_out, 2, x1);
-				store2_to(fast_out, 4, x2);
-				store2_to(fast_out, 6, x3);
-
-				fast_first += 8;
-				fast_out += 8;
-			}
-
-			while(partitions.second) {
-				--partitions.second;
-				*fast_out = op(*fast_first);
-				++fast_first;
-				++fast_out;
-			}
+			copy_transform_vector(fast_first, fast_n, fast_out, op);
 
 			n -= fast_n;
 			first += fast_n;

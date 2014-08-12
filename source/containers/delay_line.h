@@ -7,10 +7,8 @@
 #include <algorithm>
 #include <utility>
 
-#include "type_tag.h"
-
+#include "iterators.h"
 #include "../base/std_dsp_mem.h"
-
 #include "../stateless_algorithms/mono.h"
 
 #ifdef WIN32
@@ -51,75 +49,6 @@ namespace std_dsp {
 	constexpr storage_size_t minimum_buffer_size(storage_size_t max_delay, storage_size_t block_size) {
 		return max_delay + block_size + 1;
 	}
-
-	//
-	//  delay_line_iterator is an intermediate iterator 0
-	//
-	template <storage_size_t CHANNELS, typename CHANNELS_TAG = split_channels_tag>
-	class delay_line_iterator; //Must use a specialization
-
-	template <storage_size_t CHANNELS>
-	class delay_line_iterator<CHANNELS, split_channels_tag> {
-	private:
-		double* data;
-		storage_size_t pos;
-		storage_size_t size;
-	public:
-		delay_line_iterator() : data(nullptr), pos(0), size(0) {}
-		delay_line_iterator(double* data, storage_size_t pos, storage_size_t size) : data(data), pos(pos), size(size) {}
-
-		inline
-		bool channels() const { return CHANNELS; }
-		inline
-		storage_size_t channels() const { return CHANNELS; }
-
-		inline
-		std::pair<double*, storage_size_t> begin(storage_size_t channel) {
-			return std::make_pair(data + (channel * size) + pos, size - pos);
-		}
-
-		void rotate(storage_size_t n) {
-			assert(n >= 0);
-			pos = wrap_forward(n, size);
-		}
-	};
-
-	template <storage_size_t CHANNELS>
-	class delay_line_iterator<CHANNELS, interleaved_channels_tag> {
-	private:
-		double* data;
-		storage_size_t pos;
-		storage_size_t size;
-
-		inline
-		double* indexed_ptr(storage_size_t i) { return data + pos * CHANNELS; }
-		inline
-		const double* indexed_ptr(storage_size_t i) const { return data + pos * CHANNELS; }
-	public:
-		delay_line_iterator() : data(nullptr), pos(0), size(0) {}
-		delay_line_iterator(double* data, storage_size_t pos, storage_size_t size) : data(data), pos(pos), size(size) {}
-
-		inline
-		std::pair<double*, storage_size_t> begin() {
-			return std::make_pair(indexed_ptr(pos), size - pos);
-		}
-		inline
-		std::pair<const double*, storage_size_t> begin() const {
-			return std::make_pair(indexed_ptr(pos), size - pos);
-		}
-
-		double& operator[](storage_size_t channel, storage_size_t i) {
-			return *(indexed_ptr(i) + channel);
-		}
-		const double& operator[](storage_size_t channel, storage_size_t i) const {
-			return *(indexed_ptr(i) + channel);
-		}
-
-		void rotate(storage_size_t n) {
-			assert(n >= 0);
-			pos = wrap_forward(n, size);
-		}
-	};
 
 	template <std::size_t CHANNELS, typename STORAGE, typename STEREO_TAG = SplitStereoTag>
 	class delay_line_buffer {

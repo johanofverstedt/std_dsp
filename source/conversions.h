@@ -75,18 +75,6 @@ namespace std_dsp {
 			++out2;
 		}
 	}
-
-	//
-	//  Default version of cont_count assumes that it gets a
-	//  contiguous buffer so it can simply return its argument.
-	//  Other implementations for other containers such as
-	//  circular structures can specialize this to enable
-	//  extracting the next contiguous part of the buffer.
-	//
-	inline
-	std::pair<double*, std::int64_t> cont_count(double* first, std::int64_t n) {
-		return std::pair<double*, std::int64_t>(first, n);
-	}
 }
 
 #endif
