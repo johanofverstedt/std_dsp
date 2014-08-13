@@ -7,6 +7,7 @@
 
 #include "stateless_algorithms/mono.h"
 
+#include <algorithm>
 #include <iostream>
 
 int main(int argc, char** argv) {
@@ -20,6 +21,16 @@ int main(int argc, char** argv) {
 		std::cout << *cit << " ";
 	}
 	std::cout << std::endl;
+
+	auto c_1 = std_dsp::make_circular_iterator(test_buf[1], 64, 256);
+	auto c_2 = std_dsp::make_circular_iterator(test_buf[1], 32, 256);
+	auto r_1 = std_dsp::make_reverse_iterator(std_dsp::make_reverse_iterator(c_1, 256), 256);
+	auto r_2 = std_dsp::make_reverse_iterator(std_dsp::make_reverse_iterator(c_2, 256), 256);
+
+	std::cout << c_2 - c_1 << std::endl;
+	std::cout << std::distance(c_1, c_2) << std::endl;
+	std::cout << r_2 - r_1 << std::endl;
+	std::cout << std::distance(r_1, r_2) << std::endl;
 
 	test_buf.randomize(4, -2.0, 2.0);
 	for(auto cit : test_buf) {

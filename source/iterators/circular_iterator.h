@@ -6,6 +6,7 @@
 #include <cassert>
 #include <algorithm>
 #include <utility>
+#include <iterator>
 
 #include "../base/std_dsp_mem.h"
 #include "../base/std_dsp_computational_basis.h"
@@ -47,7 +48,7 @@ namespace std_dsp {
 	}
 
 	template <typename I>
-	class circular_iterator {
+	class circular_iterator : public std::iterator<std::random_access_iterator_tag, double, integer_t> {
 	private:
 		I offset;
 		integer_t pos;
@@ -106,6 +107,14 @@ namespace std_dsp {
 		}
 
 		inline
+		integer_t operator-(circular_iterator x) {
+			if(pos >= x.pos)
+				return pos - x.pos;
+			else
+				return (x.size - x.pos) + pos;
+		}
+
+		inline
 		double& operator*() {
 			return offset[pos];
 		}
@@ -146,7 +155,7 @@ namespace std_dsp {
 		inline
 		friend
 		void store2_to(circular_iterator it, integer_t n, vector2_t value) {
-			return rotate(store2_to(it.offset, detail::wrap_forward(it.pos + n, it.size), value));
+			store2_to(it.offset, detail::wrap_forward(it.pos + n, it.size), value);
 		}
 
 		inline

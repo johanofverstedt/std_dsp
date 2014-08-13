@@ -6,13 +6,14 @@
 #include <cassert>
 #include <algorithm>
 #include <utility>
+#include <iterator>
 
 #include "../base/std_dsp_mem.h"
 #include "../base/std_dsp_computational_basis.h"
 
 namespace std_dsp {
 	template <typename I>
-	class stride_iterator {
+	class stride_iterator : public std::iterator<std::random_access_iterator_tag, double, integer_t> {
 	private:
 		I it;
 		integer_t stride;

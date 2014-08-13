@@ -6,13 +6,14 @@
 #include <cassert>
 #include <algorithm>
 #include <utility>
+#include <iterator>
 
 #include "../base/std_dsp_mem.h"
 #include "../base/std_dsp_computational_basis.h"
 
 namespace std_dsp {
 	template <typename I>
-	class reverse_iterator {
+	class reverse_iterator : public std::iterator<std::random_access_iterator_tag, double, integer_t> {
 	private:
 		I it;
 	public:
@@ -57,6 +58,11 @@ namespace std_dsp {
 		}
 
 		inline
+		integer_t operator-(reverse_iterator x) {
+			return x.it - it;
+		}
+
+		inline
 		double& operator*() {
 			return *(it - 1);
 		}
@@ -98,7 +104,7 @@ namespace std_dsp {
 		inline
 		friend
 		void store2_to(reverse_iterator it, integer_t n, vector2_t value) {
-			return rotate(store2_to(it.it, -(2 + n), value));
+			store2_to(it.it, -(2 + n), rotate(value));
 		}
 
 		inline
