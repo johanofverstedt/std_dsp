@@ -8,110 +8,11 @@
 #include <utility>
 
 #include "../base/std_dsp_mem.h"
+#include "../iterators/channel_iterator.h"
 
 #include "../stateless_algorithms/mono.h"
 
 namespace std_dsp {
-	class channel_iterator {
-	private:
-		double* ptr;
-		storage_size_t stride;
-	public:
-		channel_iterator() {}
-		channel_iterator(double* ptr, storage_size_t stride) : ptr(ptr), stride(stride) {}
-
-		inline
-		double* begin() {
-			return ptr;
-		}
-		inline
-		double* end() {
-			return ptr + stride;
-		}
-		inline
-		const double* begin() const {
-			return ptr;
-		}
-		inline
-		const double* end() const {
-			return ptr + stride;
-		}
-		inline
-		const double* cbegin() {
-			return ptr;
-		}
-		inline
-		const double* cend() {
-			return ptr + stride;
-		}
-		inline
-		const double* cbegin() const {
-			return ptr;
-		}
-		inline
-		const double* cend() const {
-			return ptr + stride;
-		}
-
-		inline
-		channel_iterator& operator++() {
-			ptr += stride;
-			return *this;
-		}
-		inline
-		channel_iterator operator++(int) {
-			channel_iterator tmp = *this;
-			ptr += stride;
-			return *this;
-		}
-		inline
-		channel_iterator& operator--() {
-			ptr -= stride;
-			return *this;
-		}
-		inline
-		channel_iterator operator--(int) {
-			channel_iterator tmp = *this;
-			ptr -= stride;
-			return *this;
-		}
-		inline
-		channel_iterator& operator+=(storage_size_t n) {
-			ptr += (stride * n);
-			return *this;
-		}
-		inline
-		channel_iterator& operator-=(storage_size_t n) {
-			ptr -= (stride * n);
-			return *this;
-		}
-
-		inline
-		double* operator*() { return ptr; }
-		inline
-		const double* operator*() const { return ptr; }
-
-		inline
-		double* operator[](storage_size_t n) {
-			return ptr + (n * stride);
-		}
-		inline
-		const double* operator[](storage_size_t n) const {
-			return ptr + (n * stride);
-		}
-
-		inline
-		friend
-		bool operator==(const channel_iterator& x, const channel_iterator& y) {
-			return x.ptr == y.ptr;
-		}
-		inline
-		friend
-		bool operator!=(const channel_iterator& x, const channel_iterator& y) {
-			return !(x == y);
-		}
-	};
-
 	template <typename STORAGE>
 	class buffer_t final {
 	private:
@@ -159,12 +60,21 @@ namespace std_dsp {
 		}
 
 		inline
+		iterator operator*() {
+			return begin(0);
+		}
+		inline
+		const_iterator operator*() const {
+			return begin(0);
+		}
+
+		inline
 		iterator operator[](difference_type channel) {
 			return begin(channel);
 		}
 
 		inline
-		const_iterator operator[](storage_size_t channel) const {
+		const_iterator operator[](integer_t channel) const {
 			return cbegin(channel);
 		}
 
@@ -180,35 +90,39 @@ namespace std_dsp {
 		//Utility methods
 
 		inline
-		void clear() { zero(storage.channels() * storage.size(), begin()); }
+		void clear() { std_dsp::zero(storage.channels() * storage.size(), begin()); }
 		inline
-		void clear(storage_size_t channel) {
-			zero(storage.size(), begin() + (storage.size() * channel));
-		}
-		inline
-		void clear(storage_size_t channel, difference_type n) {
-			zero(n, begin() + (storage.size() * channel));
+		void clear(integer_t n) {
+			for(auto c : *this)
+				std_dsp::zero(n, c);
 		}
 
 		inline
-		void fill(double x) { assign(storage.channels() * storage.size(), begin(), x); }
+		void fill(double x) { std_dsp::assign(storage.channels() * storage.size(), begin(), x); }
 		inline
-		void fill(storage_size_t channel, double x) {
-			assign(storage.size(), begin() + (storage.size() * channel), x);
-		}
-		inline
-		void fill(storage_size_t channel, difference_type n, double x) {
-			assign(n, begin() + (storage.size() * channel), x);
+		void fill(integer_t n, double x) {
+			for(auto c : *this)
+				std_dsp::assign(n, c, x);
 		}
 
 		inline
-		void randomize(double a = 0.0, double b = 1.0) {
+		void randomize(double a = -1.0, double b = 1.0) {
 			std_dsp::randomize(storage.channels() * storage.size(), begin(), a, b);
+		}
+		inline
+		void randomize(integer_t n, double a = -1.0, double b = 1.0) {
+			for(auto c : *this)
+				std_dsp::randomize(n, c, a, b);
 		}
 
 		inline
 		void undenormalize() {
 			std_dsp::undenormalize(storage(), storage.channels() * storage.size());
+		}
+		inline
+		void undenormalize(integer_t n) {
+			for(auto c : *this)
+				std_dsp::undenormalize(c, n);
 		}
 
 		inline
@@ -233,16 +147,16 @@ namespace std_dsp {
 		}
 	};
 
-	template <storage_size_t CHANNELS, storage_size_t SIZE>
+	template <integer_t CHANNELS, integer_t SIZE>
 	using static_buffer = buffer_t<static_storage<CHANNELS, SIZE>>;
 
-	template <storage_size_t SIZE>
+	template <integer_t SIZE>
 	using static_mono_buffer = static_buffer<1, SIZE>;
 
-	template <storage_size_t SIZE>
+	template <integer_t SIZE>
 	using static_stereo_buffer = static_buffer<2, SIZE>;
 
-	template <storage_size_t CHANNELS>
+	template <integer_t CHANNELS>
 	using buffer = buffer_t<dynamic_storage<CHANNELS>>;
 
 	using mono_buffer = buffer<1>;

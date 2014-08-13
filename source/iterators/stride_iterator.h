@@ -15,10 +15,10 @@ namespace std_dsp {
 	class stride_iterator {
 	private:
 		I it;
-		storage_size_t stride;
+		integer_t stride;
 	public:
 		stride_iterator() {}
-		stride_iterator(I offset, storage_size_t stride) : it(it), stride(stride) {}
+		stride_iterator(I offset, integer_t stride) : it(it), stride(stride) {}
 
 		inline
 		stride_iterator& operator++() { it += stride; return *this; }
@@ -38,14 +38,14 @@ namespace std_dsp {
 		}
 
 		inline
-		stride_iterator& operator+=(storage_size_t n) {
+		stride_iterator& operator+=(integer_t n) {
 			//assert(n >= 0)
 			//assert(n <= size);
 			it += (stride * n);
 			return *this;
 		}
 		inline
-		stride_iterator& operator-=(storage_size_t n) {
+		stride_iterator& operator-=(integer_t n) {
 			//assert(n >= 0)
 			//assert(abs(n) <= size);
 			it -= (stride * n);
@@ -53,7 +53,7 @@ namespace std_dsp {
 		}
 
 		inline
-		stride_iterator operator+(storage_size_t n) {
+		stride_iterator operator+(integer_t n) {
 			//assert(n >= 0)
 			//assert(n <= size);
 			stride_iterator tmp = *this;
@@ -61,7 +61,7 @@ namespace std_dsp {
 			return tmp;
 		}
 		inline
-		stride_iterator operator-(storage_size_t n) {
+		stride_iterator operator-(integer_t n) {
 			//assert(n >= 0)
 			//assert(n <= size);
 			stride_iterator tmp = *this;
@@ -79,11 +79,11 @@ namespace std_dsp {
 		}
 
 		inline
-		double& operator[](storage_size_t n) {
+		double& operator[](integer_t n) {
 			return it[stride * n];
 		}
 		inline
-		const double& operator[](storage_size_t n) const {
+		const double& operator[](integer_t n) const {
 			return it[stride * n];
 		}
 
@@ -108,12 +108,12 @@ namespace std_dsp {
 		}
 		inline
 		friend
-		storage_size_t fast_count(stride_iterator it, storage_size_t n) {
+		integer_t fast_count(stride_iterator it, integer_t n) {
 			return 0;
 		}
 		inline
 		friend
-		storage_size_t fast_reverse_count(stride_iterator it, storage_size_t n) {
+		integer_t fast_reverse_count(stride_iterator it, integer_t n) {
 			return 0;
 		}
 		inline
@@ -124,7 +124,7 @@ namespace std_dsp {
 	};
 
 	template <typename I>
-	stride_iterator<I> make_stride_iterator(I it, storage_size_t stride) {
+	stride_iterator<I> make_stride_iterator(I it, integer_t stride) {
 		return stride_iterator<I>(it, stride);
 	}
 

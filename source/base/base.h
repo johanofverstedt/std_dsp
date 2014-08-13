@@ -20,7 +20,7 @@
 //General processing performance queries
 
 namespace std_dsp {
-	using storage_size_t = std::int64_t;
+	using integer_t = std::int64_t;
 
 	inline
 	const double* get_ptr(const double* x) {
@@ -61,35 +61,35 @@ namespace std_dsp {
 	}
 
 	inline
-	constexpr storage_size_t fast_count(const double*, storage_size_t n) {
+	constexpr integer_t fast_count(const double*, integer_t n) {
 		return n;
 	}
 	inline
-	constexpr storage_size_t fast_count(double*, storage_size_t n) {
+	constexpr integer_t fast_count(double*, integer_t n) {
 		return n;
 	}
 	inline
-	constexpr storage_size_t fast_reverse_count(const double*, storage_size_t n) {
+	constexpr integer_t fast_reverse_count(const double*, integer_t n) {
 		return n;
 	}
 	inline
-	constexpr storage_size_t fast_reverse_count(double*, storage_size_t n) {
+	constexpr integer_t fast_reverse_count(double*, integer_t n) {
 		return n;
 	}
 
 	template <typename T>
 	inline
-	constexpr storage_size_t fast_count(const T& x, storage_size_t n) {
+	constexpr integer_t fast_count(const T& x, integer_t n) {
 		return (std::min)(fast_count(x, n), n);
 	}
 	template <typename T1, typename T2>
 	inline
-	constexpr storage_size_t fast_count(const T1& x, const T2& y, storage_size_t n) {
+	constexpr integer_t fast_count(const T1& x, const T2& y, integer_t n) {
 		return (std::min)(fast_count(x, n), fast_count(y, n));
 	}
 	template <typename T1, typename T2, typename T3>
 	inline
-	constexpr storage_size_t fast_count(const T1& x, const T2& y, const T3& z, storage_size_t n) {
+	constexpr integer_t fast_count(const T1& x, const T2& y, const T3& z, integer_t n) {
 		return (std::min)(fast_count(x, y, n), fast_count(z, n));
 	}
 }

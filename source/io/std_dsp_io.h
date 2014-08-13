@@ -8,7 +8,7 @@
 #include "../base/std_dsp_mem.h"
 
 namespace std_dsp {
-	template <storage_size_t CHANNELS, typename I, typename N>
+	template <integer_t CHANNELS, typename I, typename N>
 	inline
 	void print_interleaved(I first, N n) {
 		std::cout << "[";

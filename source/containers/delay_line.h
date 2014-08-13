@@ -19,19 +19,19 @@
 namespace std_dsp {
 	namespace detail {	
 		inline
-		storage_size_t wrap_forward(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_forward(integer_t i, integer_t buf_size) {
 			if (i >= buf_size)
 				return i % buf_size;
 			return i;
 		}
 		inline
-		storage_size_t wrap_reverse(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_reverse(integer_t i, integer_t buf_size) {
 			while (i < 0)
 				i += buf_size;
 			return i;
 		}
 		inline
-		storage_size_t wrap_bidirectional(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_bidirectional(integer_t i, integer_t buf_size) {
 			if (i >= buf_size)
 				return i % buf_size;
 			while (i < 0)
@@ -46,7 +46,7 @@ namespace std_dsp {
 	//  processing system.
 	//
 	inline
-	constexpr storage_size_t minimum_buffer_size(storage_size_t max_delay, storage_size_t block_size) {
+	constexpr integer_t minimum_buffer_size(integer_t max_delay, integer_t block_size) {
 		return max_delay + block_size + 1;
 	}
 
@@ -54,7 +54,7 @@ namespace std_dsp {
 	class delay_line_buffer {
 	private:
 		STORAGE storage;
-		storage_size_t write_head;
+		integer_t write_head;
 	public:
 		delay_line() : data() {}
 		delay_line(difference_type n) : data(n) {}
@@ -99,7 +99,7 @@ namespace std_dsp {
 		//  delay is non-negative
 		// 
 		inline
-		void rotate(storage_size_t n) {
+		void rotate(integer_t n) {
 			assert(n >= 0);
 			write_head = wrap_forward(write_head + n, storage.size());
 		}
@@ -110,7 +110,7 @@ namespace std_dsp {
 		//  Also resets the delay and fills the memory with zeros.
 		//
 		inline
-		void resize(storage_size_t n) {
+		void resize(integer_t n) {
 			storage.resize(n);
 			write_head = 0;
 			clear();

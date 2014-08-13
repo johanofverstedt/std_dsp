@@ -13,31 +13,31 @@
 namespace std_dsp {
 	namespace detail {	
 		inline
-		storage_size_t wrap_forward(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_forward(integer_t i, integer_t buf_size) {
 			while (i >= buf_size)
 				i -= buf_size;
 			return i;
 		}
 		inline
-		storage_size_t wrap_reverse(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_reverse(integer_t i, integer_t buf_size) {
 			while (i < 0)
 				i += buf_size;
 			return i;
 		}
 		inline
-		storage_size_t wrap_forward_1(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_forward_1(integer_t i, integer_t buf_size) {
 			if (i == buf_size)
 				return 0;
 			return i;
 		}
 		inline
-		storage_size_t wrap_reverse_1(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_reverse_1(integer_t i, integer_t buf_size) {
 			if (i < 0)
 				i += buf_size;
 			return i;
 		}
 		inline
-		storage_size_t wrap_bidirectional(storage_size_t i, storage_size_t buf_size) {
+		integer_t wrap_bidirectional(integer_t i, integer_t buf_size) {
 			if (i >= buf_size)
 				return i - buf_size;
 			if (i < 0)
@@ -50,11 +50,11 @@ namespace std_dsp {
 	class circular_iterator {
 	private:
 		I offset;
-		storage_size_t pos;
-		storage_size_t size;
+		integer_t pos;
+		integer_t size;
 	public:
 		circular_iterator() {}
-		circular_iterator(I offset, storage_size_t pos, storage_size_t size) : offset(offset), pos(pos), size(size) {}
+		circular_iterator(I offset, integer_t pos, integer_t size) : offset(offset), pos(pos), size(size) {}
 
 		inline
 		circular_iterator operator++() { pos = detail::wrap_forward_1(pos + 1, size); return *this; }
@@ -74,14 +74,14 @@ namespace std_dsp {
 		}
 
 		inline
-		circular_iterator& operator+=(storage_size_t n) {
+		circular_iterator& operator+=(integer_t n) {
 			//assert(n >= 0)
 			//assert(n <= size);
 			pos = detail::wrap_forward(pos + n, size);
 			return *this;
 		}
 		inline
-		circular_iterator& operator-=(storage_size_t n) {
+		circular_iterator& operator-=(integer_t n) {
 			//assert(n >= 0)
 			//assert(abs(n) <= size);
 			pos = detail::wrap_reverse(pos - n, size);
@@ -89,7 +89,7 @@ namespace std_dsp {
 		}
 
 		inline
-		circular_iterator operator+(storage_size_t n) {
+		circular_iterator operator+(integer_t n) {
 			//assert(n >= 0)
 			//assert(n <= size);
 			circular_iterator tmp(offset, pos, size);
@@ -97,7 +97,7 @@ namespace std_dsp {
 			return tmp;
 		}
 		inline
-		circular_iterator operator-(storage_size_t n) {
+		circular_iterator operator-(integer_t n) {
 			//assert(n >= 0)
 			//assert(n <= size);
 			circular_iterator tmp(offset, pos, size);
@@ -115,11 +115,11 @@ namespace std_dsp {
 		}
 
 		inline
-		double& operator[](storage_size_t n) {
+		double& operator[](integer_t n) {
 			return offset[detail::wrap_bidirectional(pos + n, size)];
 		}
 		inline
-		const double& operator[](storage_size_t n) const {
+		const double& operator[](integer_t n) const {
 			return offset[detail::wrap_bidirectional(pos + n, size)];
 		}
 
@@ -139,13 +139,13 @@ namespace std_dsp {
 
 		inline
 		friend
-		vector2_t load2_from(circular_iterator it, storage_size_t n) {
+		vector2_t load2_from(circular_iterator it, integer_t n) {
 			return load2_from(it.offset, detail::wrap_forward(it.pos + n, it.size));
 		}
 
 		inline
 		friend
-		void store2_to(circular_iterator it, storage_size_t n, vector2_t value) {
+		void store2_to(circular_iterator it, integer_t n, vector2_t value) {
 			return rotate(store2_to(it.offset, detail::wrap_forward(it.pos + n, it.size), value));
 		}
 
@@ -156,12 +156,12 @@ namespace std_dsp {
 		}
 		inline
 		friend
-		storage_size_t fast_count(circular_iterator it, storage_size_t n) {
+		integer_t fast_count(circular_iterator it, integer_t n) {
 			return (std::min)(it.size - it.pos, n);
 		}
 		inline
 		friend
-		storage_size_t fast_reverse_count(circular_iterator it, storage_size_t n) {
+		integer_t fast_reverse_count(circular_iterator it, integer_t n) {
 			return (std::min)(it.pos, n);
 		}
 		inline
@@ -172,14 +172,14 @@ namespace std_dsp {
 		
 		inline
 		friend
-		circular_iterator make_delay_iterator(circular_iterator it, storage_size_t delay) {
+		circular_iterator make_delay_iterator(circular_iterator it, integer_t delay) {
 			//assert(delay >= 0);
 			return circular_iterator(it, detail::wrap_reverse(it.pos - delay), it.size);
 		}
 	};
 
 	template <typename I>
-	circular_iterator<I> make_circular_iterator(I it, storage_size_t pos, storage_size_t size) {
+	circular_iterator<I> make_circular_iterator(I it, integer_t pos, integer_t size) {
 		return circular_iterator<I>(it, pos, size);
 	}
 

@@ -44,32 +44,32 @@ namespace std_dsp {
 	}
 
 	inline
-	double* split_channel_begin(double* p, storage_size_t channel, storage_size_t size) {
+	double* split_channel_begin(double* p, integer_t channel, integer_t size) {
 		return p + channel * size;
 	}
 	inline
-	const double* split_channel_cbegin(const double* p, storage_size_t channel, storage_size_t size) {
+	const double* split_channel_cbegin(const double* p, integer_t channel, integer_t size) {
 		return p + channel * size;
 	}
 	inline
-	double* split_channel_end(double* p, storage_size_t channel, storage_size_t size) {
-		return p + (channel + storage_size_t(1)) * size;
+	double* split_channel_end(double* p, integer_t channel, integer_t size) {
+		return p + (channel + integer_t(1)) * size;
 	}
 	inline
-	const double* split_channel_end(const double* p, storage_size_t channel, storage_size_t size) {
-		return p + (channel + storage_size_t(1)) * size;
+	const double* split_channel_end(const double* p, integer_t channel, integer_t size) {
+		return p + (channel + integer_t(1)) * size;
 	}
 
 	inline
-	double* storage_end(double* p, storage_size_t channels, storage_size_t size) {
+	double* storage_end(double* p, integer_t channels, integer_t size) {
 		return p + (channels * size);
 	}
 	inline
-	const double* storage_cend(const double* p, storage_size_t channels, storage_size_t size) {
+	const double* storage_cend(const double* p, integer_t channels, integer_t size) {
 		return p + (channels * size);
 	}
 
-	template <storage_size_t CHANNELS, storage_size_t SIZE>
+	template <integer_t CHANNELS, integer_t SIZE>
 	class static_storage {
 	private:
 		SSE_ALIGN double data[CHANNELS * SIZE];
@@ -79,7 +79,7 @@ namespace std_dsp {
 		using const_pointer = const pointer;
 		using reference = value_type&;
 		using const_reference = const reference;
-		using difference_type = storage_size_t;
+		using difference_type = integer_t;
 		using iterator = pointer;
 		using const_iterator = const_pointer;
 
@@ -96,27 +96,27 @@ namespace std_dsp {
 		inline
 		const double* operator()() const { return cbegin(); }
 
-		storage_size_t channels() { return CHANNELS;}
+		integer_t channels() { return CHANNELS;}
 		inline
-		storage_size_t size() const { return SIZE; }
+		integer_t size() const { return SIZE; }
 		inline
-		storage_size_t raw_size() const { return CHANNELS * SIZE; }
+		integer_t raw_size() const { return CHANNELS * SIZE; }
 
-		void resize(storage_size_t n); //Not possible for static storage
+		void resize(integer_t n); //Not possible for static storage
 	};
 
-	template <storage_size_t CHANNELS>
+	template <integer_t CHANNELS>
 	class dynamic_storage {
 	private:
 		double* data;
-		storage_size_t buf_size;
+		integer_t buf_size;
 	public:
 		using value_type = double;
 		using pointer = value_type*;
 		using const_pointer = const pointer;
 		using reference = value_type&;
 		using const_reference = const reference;
-		using difference_type = storage_size_t;
+		using difference_type = integer_t;
 		using iterator = pointer;
 		using const_iterator = const_pointer;
 
@@ -170,12 +170,12 @@ namespace std_dsp {
 		inline
 		const double* operator()() const { return cbegin(); }		
 		inline
-		storage_size_t size() const { return buf_size; }
+		integer_t size() const { return buf_size; }
 		inline
-		storage_size_t raw_size() const { return CHANNELS * buf_size; }
+		integer_t raw_size() const { return CHANNELS * buf_size; }
 
 		inline
-		void resize(storage_size_t n) {
+		void resize(integer_t n) {
 			if(n == buf_size)
 				return;
 

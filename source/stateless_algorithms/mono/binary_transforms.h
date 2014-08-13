@@ -7,9 +7,9 @@
 #include "functors.h"
 
 namespace std_dsp {
-	template <typename N, typename Op>
+	template <typename I1, typename I2, typename N, typename O, typename Op>
 	inline
-	void binary_transform(const scalar_t* first1, const scalar_t* first2, N n, scalar_t* out, Op op) {
+	void binary_transform(I1 first1, I2 first2, N n, O out, Op op) {
 		std::pair<std::size_t, std::size_t> partitions = unroll_partition_8(n);
 		while(partitions.first) {
 			vector2_t x10 = load2_from(first1, 0);

@@ -37,22 +37,22 @@ namespace std_dsp {
 		}
 
 		inline
-		reverse_iterator& operator+=(storage_size_t n) {
+		reverse_iterator& operator+=(integer_t n) {
 			it -= n;
 			return *this;
 		}
 		inline
-		reverse_iterator& operator-=(storage_size_t n) {
+		reverse_iterator& operator-=(integer_t n) {
 			it += n;
 			return *this;
 		}
 
 		inline
-		reverse_iterator operator+(storage_size_t n) {
+		reverse_iterator operator+(integer_t n) {
 			return reverse_iterator(it - n);
 		}
 		inline
-		reverse_iterator operator-(storage_size_t n) {
+		reverse_iterator operator-(integer_t n) {
 			return reverse_iterator(it + n);
 		}
 
@@ -66,11 +66,11 @@ namespace std_dsp {
 		}
 
 		inline
-		double& operator[](storage_size_t n) {
+		double& operator[](integer_t n) {
 			return it[-(n+1)];
 		}
 		inline
-		const double& operator[](storage_size_t n) const {
+		const double& operator[](integer_t n) const {
 			return it[-(n+1)];
 		}
 
@@ -91,13 +91,13 @@ namespace std_dsp {
 
 		inline
 		friend
-		vector2_t load2_from(reverse_iterator it, storage_size_t n) {
+		vector2_t load2_from(reverse_iterator it, integer_t n) {
 			return rotate(load2_from(it.it, -(2 + n)));
 		}
 
 		inline
 		friend
-		void store2_to(reverse_iterator it, storage_size_t n, vector2_t value) {
+		void store2_to(reverse_iterator it, integer_t n, vector2_t value) {
 			return rotate(store2_to(it.it, -(2 + n), value));
 		}
 
@@ -108,12 +108,12 @@ namespace std_dsp {
 		}
 		inline
 		friend
-		storage_size_t fast_count(reverse_iterator it, storage_size_t n) {
+		integer_t fast_count(reverse_iterator it, integer_t n) {
 			return fast_reverse_count(it.it, n);
 		}
 		inline
 		friend
-		storage_size_t fast_reverse_count(reverse_iterator it, storage_size_t n) {
+		integer_t fast_reverse_count(reverse_iterator it, integer_t n) {
 			return fast_count(it.it, n);
 		}
 		inline
