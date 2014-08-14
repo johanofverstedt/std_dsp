@@ -87,7 +87,7 @@ namespace std_dsp {
 		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<I2>::value_type>::value,
 			"Input iterators have different value type.");
 		static_assert(std::is_same<typename std::iterator_traits<O>::value_type, decltype(op(*first1))>::value,
-			"Op codomain not matching the value type of O");
+			"Op return type not matching the value type of output.");
 
 		while(n) {
 			--n;
@@ -135,7 +135,7 @@ namespace std_dsp {
 		static_assert(std::is_same<typename std::iterator_traits<O1>::value_type, typename std::iterator_traits<O2>::value_type>::value,
 			"Input iterators have different value type.");
 		static_assert(std::is_same<typename std::iterator_traits<O1>::value_type, decltype(op(*first))>::value,
-			"Op codomain not matching the value type of O");
+			"Op return type not matching the value type of output.");
 
 		while(n) {
 			--n;
@@ -152,10 +152,14 @@ namespace std_dsp {
 
 	template <typename I, std::int64_t MAX_N = 16LL>
 	inline
-	void interleave_inplace_small(I x, std::int64_t n) {
-		assert(n >= MAX_N);
+	void interleave_with_stack_copy(I x, std::int64_t n) {
+		static_assert(MAX_N >= 2);
 
-		std::array<typename std::iterator_traits<I>::value_type, 2LL * MAX_N> tmp;
+		using value_type = typename std::iterator_traits<I>::value_type;
+		assert(n >= 0);
+		assert(n <= MAX_N);
+
+		std::array<value_type, MAX_N> tmp;
 		I x2 = x + n;
 		std::copy_n(x, n, tmp.begin());
 		interleave(tmp.begin(), x2, n, x);
@@ -169,7 +173,7 @@ namespace std_dsp {
 		if(n <= 1LL)
 			return;
 		if(n <= THRESHOLD_N) {
-			interleave_inplace_small<I, THRESHOLD_N>(x, n);
+			interleave_with_stack_copy<I, THRESHOLD_N>(x, n);
 			return;
 		}
 		std::int64_t half = n >> 1LL;
@@ -183,10 +187,14 @@ namespace std_dsp {
 
 	template <typename I, std::int64_t MAX_N = 16LL>
 	inline
-	void split_inplace_small(I x, std::int64_t n) {
-		assert(n >= MAX_N);
+	void split_with_stack_copy(I x, std::int64_t n) {
+		static_assert(MAX_N >= 2);
 
-		std::array<typename std::iterator_traits<I>::value_type, 2LL * MAX_N> tmp;
+		typename std::iterator_traits<I>::value_type;
+		assert(n >= 0);
+		assert(n <= MAX_N);
+
+		std::array<value_type, 2LL * MAX_N> tmp;
 		I x2 = x + n;
 		std::copy_n(x, 2LL * n, tmp.begin());
 		split(tmp.begin(), n, x, x2);
@@ -200,7 +208,7 @@ namespace std_dsp {
 		if(n <= 1LL)
 			return;
 		if(n <= THRESHOLD_N) {
-			split_inplace_small<I, THRESHOLD_N>(x, n);
+			split_with_stack_copy<I, THRESHOLD_N>(x, n);
 			return;
 		}
 		std::int64_t half = n >> 1LL;
