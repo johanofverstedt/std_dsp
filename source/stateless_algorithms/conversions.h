@@ -1,4 +1,44 @@
 
+//
+//	- Conversion algorithms -
+//
+//	- Copy algorithms - (requires an extra buffer)
+//
+//	<double_to_float> : converts the double sequence into a float sequence
+//  <float_to_double> : converts the float sequence into a double sequence
+//
+//  <interleave> : converts 2 equally sized sequences from [A, B, C], [1, 2, 3] -> [A, 1, B, 2, C, 3]
+//  <split> : converts an interleaved sequence [A, 1, B, 2, C, 3] -> [A, B, C], [1, 2, 3]
+//  <interleave4> : like interleave, but with 4 equally sized sequences
+//  <split4> : like split, but with 4-channel interleaving
+//
+//	- Inplace algorithms - (may only consume O(log(n)) of additional stack space)
+//
+//	<interleave_with_stack_copy> : Makes a temporary copy on the stack which is then interleaved
+//    into the original buffer. The maximum N it can handle must be set via template parameter
+//    at compile time. Works in O(n) time and user defined constant.
+//	<split_with_stack_copy> : Makes a temporary copy on the stack which is then split
+//    into the original buffer. The maximum N it can handle must be set via template parameter
+//    at compile time. Works in O(n) time and user defined constant.
+//
+//	<interleave_inplace> : Uses a memory adaptive divide-and-conquer algorithm
+//    to do the operation without extra buffers in O(n*log(n)) time and O(log(n)) stack space.
+//  <split_inplace> : Uses a memory adaptive divide-and-conquer algorithm
+//    to do the operation without extra buffers in O(n*log(n)) time and O(log(n)) stack space.
+//
+//  Note: Both interleave_inplace and split_inplace can be configured at compile time to
+//    stop the recursion and switch to the *_with_stack_copy algorithm when the problem size
+//    drops below a threshold. This removes the worst performance issues with these slow algorithms,
+//    allowing them to perform fairly well and still be able to handle inputs of any size with
+//    only constant memory.
+//
+//	More notes: All inplace algorithms require split sequences to reside immediately after
+//    each other in the iterator space. [A, B, C], [1, 2, 3] must really be [A, B, C, 1, 2, 3].
+//    This is a limitation that the copy algorithms do not have.
+//
+//	- Author: Johan Öfverstedt, 2014 -
+//
+
 #ifndef STD_DSP_CONVERSIONS_GUARD
 #define STD_DSP_CONVERSIONS_GUARD
 
@@ -7,8 +47,6 @@
 #include <iterator>
 #include <algorithm>
 #include <array>
-
-#include <iostream>
 
 namespace std_dsp {
 	template <typename I, typename N, typename O>
@@ -56,7 +94,7 @@ namespace std_dsp {
 	//Interleaves the stereo signal from two separate source buffers into
 	//a single buffer.
 	//Preconditions:
-	//Neither first1 nor first2 overlaps with out, but first1 and first2 may be the same
+	//Neither first1 nor first2 overlaps with out's first half, but first1 and first2 may be the same
 	//Example:
 	//[A, B, C], [D, E, F] -> [A, D, B, E, C, F]
 	template <typename I1, typename I2, typename N, typename O>
@@ -80,6 +118,7 @@ namespace std_dsp {
 			++out;
 		}
 	}
+
 	template <typename I1, typename I2, typename N, typename O, typename Op>
 	inline
 	void interleave(I1 first1, I2 first2, N n, O out, Op op) {
@@ -101,6 +140,42 @@ namespace std_dsp {
 			++out;
 		}
 	}
+
+	//Interleaves the stereo signal from two separate source buffers into
+	//a single buffer.
+	//Preconditions:
+	//Neither first1 nor first2 overlaps with out's first half, but first1 and first2 may be the same
+	//Example:
+	//[A, B, C], [D, E, F] -> [A, D, B, E, C, F]
+	template <typename I1, typename I2, typename I3, typename I4, typename N, typename O>
+	inline
+	void interleave4(I1 first1, I2 first2, I3 first3, I4 first4, N n, O out) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
+		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<I2>::value_type>::value,
+			"Mismatching value types.");
+		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<O>::value_type>::value,
+			"Mismatching value types.");
+
+		while(n) {
+			--n;
+			
+			*out = *first1;
+			++first1;
+			++out;
+
+			*out = *first2;
+			++first2;
+			++out;
+
+			*out = *first3;
+			++first3;
+			++out;
+
+			*out = *first4;
+			++first4;
+			++out;
+		}
+	}	
 
 	//Splits an interleaved stereo signal into two separate destination buffers
 	//Preconditions:
@@ -128,6 +203,7 @@ namespace std_dsp {
 			++out2;
 		}
 	}
+
 	template <typename I, typename N, typename O1, typename O2, typename Op>
 	inline
 	void split(I first, N n, O1 out1, O2 out2, Op op) {
@@ -150,12 +226,42 @@ namespace std_dsp {
 		}
 	}
 
+	template <typename I, typename N, typename O1, typename O2, typename O3, typename O4>
+	inline
+	void split4(I first, N n, O1 out1, O2 out2, O3 out3, O4 out4) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
+		static_assert(std::is_same<typename std::iterator_traits<O1>::value_type, typename std::iterator_traits<O2>::value_type>::value,
+			"Mismatching value types.");
+		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, typename std::iterator_traits<O1>::value_type>::value,
+			"Mismatching value types.");
+
+		while(n) {
+			--n;
+
+			*out1 = *first;
+			++first;
+			++out1;
+
+			*out2 = *first;
+			++first;
+			++out2;
+
+			*out3 = *first;
+			++first;
+			++out3;
+
+			*out4 = *first;
+			++first;
+			++out4;
+		}
+	}
+
 	template <typename I, std::int64_t MAX_N = 16LL>
 	inline
 	void interleave_with_stack_copy(I x, std::int64_t n) {
-		static_assert(MAX_N >= 2);
-
 		using value_type = typename std::iterator_traits<I>::value_type;
+		static_assert(MAX_N >= 2, "MAX_N must be greater than 1.");
+
 		assert(n >= 0);
 		assert(n <= MAX_N);
 
@@ -165,7 +271,7 @@ namespace std_dsp {
 		interleave(tmp.begin(), x2, n, x);
 	}
 
-	template <typename I, std::int64_t THRESHOLD_N = 16LL>
+	template <typename I, std::int64_t THRESHOLD_N = 64LL>
 	inline
 	void interleave_inplace(I x, std::int64_t n) {
 		assert(n <= 1LL || (n & 1) == 0);
@@ -188,9 +294,9 @@ namespace std_dsp {
 	template <typename I, std::int64_t MAX_N = 16LL>
 	inline
 	void split_with_stack_copy(I x, std::int64_t n) {
-		static_assert(MAX_N >= 2);
+		using value_type = typename std::iterator_traits<I>::value_type;
+		static_assert(MAX_N >= 2, "MAX_N must be greater than 1.");
 
-		typename std::iterator_traits<I>::value_type;
 		assert(n >= 0);
 		assert(n <= MAX_N);
 
@@ -200,7 +306,7 @@ namespace std_dsp {
 		split(tmp.begin(), n, x, x2);
 	}
 
-	template <typename I, std::int64_t THRESHOLD_N = 16LL>
+	template <typename I, std::int64_t THRESHOLD_N = 64LL>
 	inline
 	void split_inplace(I x, std::int64_t n) {
 		assert(n <= 1LL || (n & 1) == 0);
