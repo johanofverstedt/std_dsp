@@ -3,9 +3,7 @@
 #define STD_DSP_BUFFER_GUARD
 
 #include <cstdint>
-#include <cassert>
 #include <algorithm>
-#include <utility>
 
 #include "../base/std_dsp_mem.h"
 #include "../iterators/channel_iterator.h"
@@ -21,27 +19,38 @@ namespace std_dsp {
 		using value_type = typename STORAGE::value_type;
 		using difference_type = typename STORAGE::difference_type;
 		using pointer = typename STORAGE::pointer;
-		using const_pointer = const pointer;
+		using const_pointer = typename STORAGE::const_pointer;
 		using reference = typename STORAGE::reference;
-		using const_reference = const reference;
+		using const_reference = typename STORAGE::const_reference;
 		using iterator = typename STORAGE::iterator;
-		using const_iterator = const iterator;
+		using const_iterator = typename STORAGE::const_iterator;
 
 		buffer_t() {}
 		buffer_t(difference_type n) { storage.resize(n); }
 
-		const channel_iterator cbegin() const {
-			return channel_iterator(storage.cbegin(), storage.size());
+		inline
+		channel_iterator<const_pointer> cbegin() const {
+			return make_channel_iterator(storage.cbegin(), storage.size());
 		}
-		const channel_iterator cend() const {
-			return channel_iterator(storage.cend(), storage.size());
+		inline
+		channel_iterator<const_pointer> cend() const {
+			return make_channel_iterator(storage.cend(), storage.size());
 		}
-
-		channel_iterator begin() {
-			return channel_iterator(storage.begin(), storage.size());
+		inline
+		channel_iterator<pointer> begin() {
+			return make_channel_iterator(storage.begin(), storage.size());
 		}
-		channel_iterator end() {
-			return channel_iterator(storage.end(), storage.size());
+		inline
+		channel_iterator<pointer> end() {
+			return make_channel_iterator(storage.end(), storage.size());
+		}
+		inline
+		channel_iterator<const_pointer> begin() const {
+			return cbegin();
+		}
+		inline
+		channel_iterator<const_pointer> end() const {
+			return cend();
 		}
 
 		inline
@@ -52,10 +61,10 @@ namespace std_dsp {
 			return end()[channel];
 		}
 
-		const_iterator cbegin(difference_type channel) {
+		const_iterator cbegin(difference_type channel) const {
 			return cbegin()[channel];
 		}
-		const_iterator cend(difference_type channel) {
+		const_iterator cend(difference_type channel) const {
 			return cbegin()[channel];
 		}
 
@@ -146,6 +155,28 @@ namespace std_dsp {
 			return !(x == y);
 		}
 	};
+
+	template <typename STORAGE, typename O>
+	inline
+	void print(const buffer_t<STORAGE>& c, O& out) {
+		out << "[ ";
+		for(integer_t i = 0; i < c.channels(); ++i) {
+			auto ch = c.cbegin(i);
+			out << "{";
+			integer_t n = c.size();
+			while(n) {
+				out << *ch;
+				if(n != 1)
+					out << ", ";
+				++ch;
+				--n;
+			}
+			out << "}";
+			if(i + 1 != c.channels())
+				out << ", " << std::endl;
+		}
+		out << " ]";
+	}
 
 	template <integer_t CHANNELS, integer_t SIZE>
 	using static_buffer = buffer_t<static_storage<CHANNELS, SIZE>>;

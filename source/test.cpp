@@ -11,7 +11,7 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-
+/*
 	std_dsp::buffer_t<std_dsp::static_storage<2, 256>> test_buf;
 	std_dsp::static_storage<2, 256> buf;
 
@@ -46,17 +46,17 @@ int main(int argc, char** argv) {
 
 	{
 	auto it1 = buf.begin();
-	for(auto i = 0; i < 256; ++i, ++it1)
-		std::cout << *it1 << " ";
+	std_dsp::print(test_buf, std::cout);
+	//std_dsp::print_range(it1, 256);
 	std::cout << std::endl;
 
 	auto it2 = std_dsp::make_reverse_iterator(buf_r.begin(), 256);
-	for(auto i = 0; i < 256; ++i, ++it2)
-		std::cout << *it2 << " ";
+	std_dsp::print(test_buf, std::cout);
+	//std_dsp::print_range(it2, 256);
 	std::cout << std::endl;
 
 	}
-
+*/
 	{
 /*	auto it1 = buf.begin();
 	std_dsp::inplace_transform(it1, 256, std_dsp::transform_functors::multiply_op(2.0));
@@ -64,6 +64,7 @@ int main(int argc, char** argv) {
 		std::cout << *it1 << " ";
 	std::cout << std::endl;
 */
+	/*
 	auto it2 = buf_r.begin();//std_dsp::make_reverse_iterator(buf_r.begin(), 256);
 	std_dsp::copy_transform(
 		std_dsp::make_circular_iterator(std_dsp::make_reverse_iterator(buf_r.begin(), 256), 66, 128),
@@ -77,8 +78,44 @@ int main(int argc, char** argv) {
 	for(auto i = 0; i < 256; ++i, ++it1)
 		std::cout << *it1 << " ";
 	std::cout << std::endl;
-
+*/
 	}
+
+	const std::int64_t c = 64;
+	const std::int64_t channels = 2;
+	const std::int64_t c2 = channels * c;
+
+	std_dsp::static_storage<channels, c> s;
+	for(int i = 0; i < c2; ++i)
+		*(s.begin() + i) = i;
+
+	std_dsp::interleave_inplace<double*, 16LL>(s.begin(), c);
+
+	for(int i = 0; i < c2; ++i)
+		std::cout << s.begin()[i] << " ";
+
+	std::cout << std::endl;
+
+	std_dsp::split_inplace(s.begin(), c);
+
+	for(int i = 0; i < c2; ++i)
+		std::cout << s.begin()[i] << " ";
+
+	std::cout << std::endl;
+
+	std_dsp::interleave_inplace<double*, 32LL>(s.begin(), c);
+
+	for(int i = 0; i < c2; ++i)
+		std::cout << s.begin()[i] << " ";
+
+	std::cout << std::endl;
+
+	std_dsp::split_inplace(s.begin(), c);
+
+	for(int i = 0; i < c2; ++i)
+		std::cout << s.begin()[i] << " ";
+
+	std::cout << std::endl;
 
 	return 0;
 }

@@ -5,98 +5,99 @@
 #include "../base/base.h"
 
 namespace std_dsp {
+		template <typename I = double*>
 		class channel_iterator {
 	private:
-		double* ptr;
+		I it;
 		integer_t stride;
 	public:
 		channel_iterator() {}
-		channel_iterator(double* ptr, integer_t stride) : ptr(ptr), stride(stride) {}
+		channel_iterator(I it, integer_t stride) : it(it), stride(stride) {}
 
 		inline
 		double* begin() {
-			return ptr;
+			return it;
 		}
 		inline
 		double* end() {
-			return ptr + stride;
+			return it + stride;
 		}
 		inline
 		const double* begin() const {
-			return ptr;
+			return it;
 		}
 		inline
 		const double* end() const {
-			return ptr + stride;
+			return it + stride;
 		}
 		inline
 		const double* cbegin() {
-			return ptr;
+			return it;
 		}
 		inline
 		const double* cend() {
-			return ptr + stride;
+			return it + stride;
 		}
 		inline
 		const double* cbegin() const {
-			return ptr;
+			return it;
 		}
 		inline
 		const double* cend() const {
-			return ptr + stride;
+			return it + stride;
 		}
 
 		inline
 		channel_iterator& operator++() {
-			ptr += stride;
+			it += stride;
 			return *this;
 		}
 		inline
 		channel_iterator operator++(int) {
 			channel_iterator tmp = *this;
-			ptr += stride;
+			it += stride;
 			return *this;
 		}
 		inline
 		channel_iterator& operator--() {
-			ptr -= stride;
+			it -= stride;
 			return *this;
 		}
 		inline
 		channel_iterator operator--(int) {
 			channel_iterator tmp = *this;
-			ptr -= stride;
+			it -= stride;
 			return *this;
 		}
 		inline
 		channel_iterator& operator+=(integer_t n) {
-			ptr += (stride * n);
+			it += (stride * n);
 			return *this;
 		}
 		inline
 		channel_iterator& operator-=(integer_t n) {
-			ptr -= (stride * n);
+			it -= (stride * n);
 			return *this;
 		}
 
 		inline
-		double* operator*() { return ptr; }
+		I operator*() { return it; }
 		inline
-		const double* operator*() const { return ptr; }
+		const I operator*() const { return it; }
 
 		inline
-		double* operator[](integer_t n) {
-			return ptr + (n * stride);
+		I operator[](integer_t n) {
+			return it + (n * stride);
 		}
 		inline
-		const double* operator[](integer_t n) const {
-			return ptr + (n * stride);
+		const I operator[](integer_t n) const {
+			return it + (n * stride);
 		}
 
 		inline
 		friend
 		bool operator==(const channel_iterator& x, const channel_iterator& y) {
-			return x.ptr == y.ptr;
+			return x.it == y.it;
 		}
 		inline
 		friend
@@ -104,6 +105,11 @@ namespace std_dsp {
 			return !(x == y);
 		}
 	};
+
+	template <typename I>
+	channel_iterator<I> make_channel_iterator(I first, integer_t stride) {
+		return channel_iterator<I>(first, stride);
+	}
 }
 
 #endif

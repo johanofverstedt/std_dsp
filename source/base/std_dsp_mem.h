@@ -76,9 +76,9 @@ namespace std_dsp {
 	public:
 		using value_type = double;
 		using pointer = value_type*;
-		using const_pointer = const pointer;
+		using const_pointer = const value_type*;
 		using reference = value_type&;
-		using const_reference = const reference;
+		using const_reference = const value_type&;
 		using difference_type = integer_t;
 		using iterator = pointer;
 		using const_iterator = const_pointer;
@@ -86,9 +86,13 @@ namespace std_dsp {
 		inline
 		double* begin() { return data; }
 		inline
+		const double* begin() const { return data; }
+		inline
 		const double* cbegin() const { return data; }
 		inline
 		double* end() { return storage_end(data, CHANNELS, SIZE); }
+		inline
+		const double* end() const { return storage_cend(data, CHANNELS, SIZE); }
 		inline
 		const double* cend() const { return storage_cend(data, CHANNELS, SIZE); }
 		inline
@@ -96,7 +100,7 @@ namespace std_dsp {
 		inline
 		const double* operator()() const { return cbegin(); }
 
-		integer_t channels() { return CHANNELS;}
+		integer_t channels() const { return CHANNELS;}
 		inline
 		integer_t size() const { return SIZE; }
 		inline
@@ -160,15 +164,21 @@ namespace std_dsp {
 		inline
 		double* begin() { return data; }
 		inline
+		const double* begin() const { return data; }
+		inline
 		const double* cbegin() const { return data; }
 		inline
 		double* end() { return storage_end(data, CHANNELS, buf_size); }
+		inline
+		const double* end() const { return storage_cend(data, CHANNELS, buf_size); }
 		inline
 		const double* cend() const { return storage_cend(data, CHANNELS, buf_size); }
 		inline
 		double* operator()() { return begin(); }
 		inline
 		const double* operator()() const { return cbegin(); }		
+		inline
+		integer_t channels() const { return CHANNELS; }
 		inline
 		integer_t size() const { return buf_size; }
 		inline
