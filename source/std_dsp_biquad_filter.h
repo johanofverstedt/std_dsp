@@ -2,7 +2,9 @@
 #ifndef STD_DSP_BIQUAD_FILTER_GUARD
 #define STD_DSP_BIQUAD_FILTER_GUARD
 
+#include "base/base.h"
 #include "base/std_dsp_mem.h"
+#include "base/computational_basis.h"
 
 #include <cstdint>
 #include <type_traits>
@@ -18,45 +20,24 @@ namespace std_dsp {
 		double b0, b1, b2;
 	};
 
-	template <std::size_t CHANNELS>
+	template <integer_t CHANNELS>
 	struct biquad_state {
-		SSE_ALIGN  double x[2 * CHANNELS];
+		double w1[CHANNELS];
+		double w2[CHANNELS];
 
 		void reset() {
-			for(std::size_t i = 0; i < 2 * CHANNELS; ++i) {
-				x[i] = 0.0;
+			for(integer_t i = 0; i < CHANNELS; ++i) {
+				w1[i] = 0.0;
+				w2[i] = 0.0;
 			}
 		}
 		void undenormalize() {
-			std::size_t n = 2 * CHANNELS;
-			for(std::size_t i = 0; i < n; ++i) {
-				if(fabs(x[i]) < 1.e-15)
-                    x[i] = 0.0;
+			for(integer_t i = 0; i < CHANNELS; ++i) {
+				if(fabs(w1[i]) < 1.e-15)
+                    w1[i] = 0.0;
+				if(fabs(w2[i]) < 1.e-15)
+                    w2[i] = 0.0;
 			}
-		}
-	};
-
-	template <>
-	struct biquad_state<2> {
-		__m128d w1;
-		__m128d w2;
-
-		biquad_state() {
-			reset();
-		}
-
-		inline
-		void reset() {
-            double z = 0.0;
-			w1 = _mm_loaddup_pd(&z);
-			w2 = _mm_loaddup_pd(&z);
-		}
-		void undenormalize() {
-//			std::size_t n = 2 * CHANNELS;
-//			for(std::size_t i = 0; i < 2 * CHANNELS; ++i) {
-//				if(fabs(x[i]) < 1.e-15)
-//                    x[i] = 0.0;
-//			}
 		}
 	};
 
@@ -66,9 +47,78 @@ namespace std_dsp {
 		//biquad_state<CHANNELS>
 	};
 
+	template <integer_t CHANNELS>
+	struct biquad_op;
+
+	template <>
+	struct biquad_op<1> {
+		template <typename I, typename N, typename O>
+		biquad_state<1> operator()(I first, N n, O out, biquad_coeffs c, biquad_state<1> s) {
+			double w1 = s.w1[0];
+			double w2 = s.w2[0];
+			while(n) {
+				--n;
+
+				const double w0 = *first - c.a1 * w1 - c.a2 * w2;
+				*out = c.b0 * w0 + c.b1 * w1 + c.b2 * w2;
+
+				w2 = w1;
+				w1 = w0;
+
+				++first;
+				++out;
+			}
+
+			s.w1 = w1;
+			s.w2 = w2;
+			s.undenormalize();
+			return s;
+		}
+	};
+
+	template <>
+	struct biquad_op<2> {
+		template <typename I, typename N, typename O>
+		biquad_state<2> operator()(I first, N n, O out, biquad_coeffs c, biquad_state<2> s) {
+			vector2_t w1 = load2_from(s.w1[0], s.w1[1]);;
+			vector2_t w2 = load2_from(s.w2[0], s.w2[1]);;
+			
+			vector2_t a1 = load2_from(c.a1);
+			vector2_t a2 = load2_from(c.a2);
+			vector2_t b0 = load2_from(c.b0);
+			vector2_t b1 = load2_from(c.b1);
+			vector2_t b2 = load2_from(c.b2);
+
+			while(n) {
+				--n;
+
+				vector2_t input = load2_from(first);
+
+				vector2_t w0 = subtract(input, subtract(multiply(a1, w1), multiply(a2, w2)));
+				vector2_t result = add(multiply(b0, w0), add(multiply(b1, w1), multiply(b2, w2)));
+
+				w2 = w1;
+				w1 = w0;
+
+				store2_to(out, result);
+
+				first += 2;
+				out += 2;
+			}
+
+			s.w1 = w1;
+			s.w2 = w2;
+			s.undenormalize();
+			return s;
+		}
+	};
+
 	template <std::size_t CHANNELS, typename I, typename N, typename O>
 	inline
 	biquad_state<CHANNELS> biquad(I first, N n, O out, biquad_coeffs c, biquad_state<CHANNELS> s) {
+		biquad_op<CHANNELS> op;
+		return op(first, n, out, c, s);
+
 		if(CHANNELS == 1) {
 			while(n) {
 				--n;
