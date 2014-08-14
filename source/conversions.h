@@ -3,6 +3,7 @@
 #define STD_DSP_CONVERSIONS_GUARD
 
 #include <cstdint>
+#include <cassert>
 #include <iterator>
 #include <algorithm>
 #include <array>
@@ -13,6 +14,7 @@ namespace std_dsp {
 	template <typename I, typename N, typename O>
 	inline
 	void double_to_float(I first, N n, O out) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
 		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, double>::value, "Input value type is not double");
 		static_assert(std::is_same<typename std::iterator_traits<O>::value_type, float>::value, "Output value type is not float");
 		
@@ -26,6 +28,7 @@ namespace std_dsp {
 	template <typename I, typename N, typename O>
 	inline
 	void float_to_double(I first, N n, O out) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
 		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, float>::value, "Input value type is not float");
 		static_assert(std::is_same<typename std::iterator_traits<O>::value_type, double>::value, "Output value type is not double");
 		
@@ -37,6 +40,19 @@ namespace std_dsp {
 		}
 	}
 
+	struct double_to_float_op {
+		inline
+		float operator()(double x) {
+			return static_cast<float>(x);
+		}
+	};
+	struct float_to_double_op {
+		inline
+		double operator()(float x) {
+			return static_cast<double>(x);
+		}
+	};
+
 	//Interleaves the stereo signal from two separate source buffers into
 	//a single buffer.
 	//Preconditions:
@@ -46,6 +62,12 @@ namespace std_dsp {
 	template <typename I1, typename I2, typename N, typename O>
 	inline
 	void interleave(I1 first1, I2 first2, N n, O out) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
+		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<I2>::value_type>::value,
+			"Mismatching value types.");
+		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<O>::value_type>::value,
+			"Mismatching value types.");
+
 		while(n) {
 			--n;
 			
@@ -54,6 +76,27 @@ namespace std_dsp {
 			++out;
 
 			*out = *first2;
+			++first2;
+			++out;
+		}
+	}
+	template <typename I1, typename I2, typename N, typename O, typename Op>
+	inline
+	void interleave(I1 first1, I2 first2, N n, O out, Op op) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
+		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<I2>::value_type>::value,
+			"Input iterators have different value type.");
+		static_assert(std::is_same<typename std::iterator_traits<O>::value_type, decltype(op(*first1))>::value,
+			"Op codomain not matching the value type of O");
+
+		while(n) {
+			--n;
+			
+			*out = op(*first1);
+			++first1;
+			++out;
+
+			*out = op(*first2);
 			++first2;
 			++out;
 		}
@@ -67,6 +110,12 @@ namespace std_dsp {
 	template <typename I, typename N, typename O1, typename O2>
 	inline
 	void split(I first, N n, O1 out1, O2 out2) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
+		static_assert(std::is_same<typename std::iterator_traits<O1>::value_type, typename std::iterator_traits<O2>::value_type>::value,
+			"Mismatching value types.");
+		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, typename std::iterator_traits<O1>::value_type>::value,
+			"Mismatching value types.");
+
 		while(n) {
 			--n;
 
@@ -79,10 +128,33 @@ namespace std_dsp {
 			++out2;
 		}
 	}
+	template <typename I, typename N, typename O1, typename O2, typename Op>
+	inline
+	void split(I first, N n, O1 out1, O2 out2, Op op) {
+		static_assert(std::is_integral<N>::value, "Count not integral.");
+		static_assert(std::is_same<typename std::iterator_traits<O1>::value_type, typename std::iterator_traits<O2>::value_type>::value,
+			"Input iterators have different value type.");
+		static_assert(std::is_same<typename std::iterator_traits<O1>::value_type, decltype(op(*first))>::value,
+			"Op codomain not matching the value type of O");
+
+		while(n) {
+			--n;
+
+			*out1 = op(*first);
+			++first;
+			++out1;
+
+			*out2 = op(*first);
+			++first;
+			++out2;
+		}
+	}
 
 	template <typename I, std::int64_t MAX_N = 16LL>
 	inline
 	void interleave_inplace_small(I x, std::int64_t n) {
+		assert(n >= MAX_N);
+
 		std::array<typename std::iterator_traits<I>::value_type, 2LL * MAX_N> tmp;
 		I x2 = x + n;
 		std::copy_n(x, n, tmp.begin());
@@ -92,7 +164,8 @@ namespace std_dsp {
 	template <typename I, std::int64_t THRESHOLD_N = 16LL>
 	inline
 	void interleave_inplace(I x, std::int64_t n) {
-		std::cout << "CALL" << std::endl;
+		assert(n <= 1LL || (n & 1) == 0);
+
 		if(n <= 1LL)
 			return;
 		if(n <= THRESHOLD_N) {
@@ -111,6 +184,8 @@ namespace std_dsp {
 	template <typename I, std::int64_t MAX_N = 16LL>
 	inline
 	void split_inplace_small(I x, std::int64_t n) {
+		assert(n >= MAX_N);
+
 		std::array<typename std::iterator_traits<I>::value_type, 2LL * MAX_N> tmp;
 		I x2 = x + n;
 		std::copy_n(x, 2LL * n, tmp.begin());
@@ -120,6 +195,8 @@ namespace std_dsp {
 	template <typename I, std::int64_t THRESHOLD_N = 16LL>
 	inline
 	void split_inplace(I x, std::int64_t n) {
+		assert(n <= 1LL || (n & 1) == 0);
+
 		if(n <= 1LL)
 			return;
 		if(n <= THRESHOLD_N) {

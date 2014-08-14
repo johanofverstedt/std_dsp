@@ -7,6 +7,8 @@
 
 #include "stateless_algorithms/mono.h"
 
+#include "perf_time.h"
+
 #include <algorithm>
 #include <iostream>
 
@@ -81,15 +83,21 @@ int main(int argc, char** argv) {
 */
 	}
 
-	const std::int64_t c = 64;
+	const std::int64_t c = 8192;
 	const std::int64_t channels = 2;
 	const std::int64_t c2 = channels * c;
 
 	std_dsp::static_storage<channels, c> s;
 	for(int i = 0; i < c2; ++i)
 		*(s.begin() + i) = i;
+	
+	std_dsp::interleave_inplace<double*, 64LL>(s.begin(), c);
+	std_dsp::split_inplace(s.begin(), c);
 
-	std_dsp::interleave_inplace<double*, 16LL>(s.begin(), c);
+	double t1 = std_dsp::perf_time();
+	for(int k = 0; k < 128; ++k)
+		std_dsp::interleave_inplace<double*, 8192LL>(s.begin(), c);
+	double t2 = std_dsp::perf_time();
 
 	for(int i = 0; i < c2; ++i)
 		std::cout << s.begin()[i] << " ";
@@ -103,7 +111,13 @@ int main(int argc, char** argv) {
 
 	std::cout << std::endl;
 
-	std_dsp::interleave_inplace<double*, 32LL>(s.begin(), c);
+	std_dsp::interleave_inplace<double*, 64LL>(s.begin(), c);
+	std_dsp::split_inplace(s.begin(), c);
+
+	double t3 = std_dsp::perf_time();
+	for(int k = 0; k < 128; ++k)
+		std_dsp::interleave_inplace<double*,64LL>(s.begin(), c);
+	double t4 = std_dsp::perf_time();
 
 	for(int i = 0; i < c2; ++i)
 		std::cout << s.begin()[i] << " ";
@@ -117,5 +131,10 @@ int main(int argc, char** argv) {
 
 	std::cout << std::endl;
 
+	std::cout << (t2 - t1) << ", " << (t4 - t3) << std::endl;
+	float x1;
+	float x2;
+	double y1[2];
+	std_dsp::interleave(&x1, &x2, 1, (double*)y1, std_dsp::float_to_double_op());
 	return 0;
 }
