@@ -31,14 +31,15 @@ namespace std_dsp {
 		return x;
 	}
 
+	template <typename I>
 	inline
-	constexpr double* get_fast_iterator(double* x) {
+	constexpr I get_fast_iterator(I x) {
 		return x;
 	}
+
+	template <typename T>
 	inline
-	constexpr const double* get_fast_iterator(const double* x) {
-		return x;
-	}
+	constexpr bool supports_fast_processing(const T&) { return false; }
 
 	inline
 	constexpr bool supports_fast_processing(const double*) {
@@ -60,6 +61,12 @@ namespace std_dsp {
 		return supports_fast_processing(x, y) && supports_fast_processing(z);
 	}
 
+	template <typename I>
+	inline
+	integer_t fast_count(I, integer_t n) {
+		return 0;
+	}
+
 	inline
 	constexpr integer_t fast_count(const double*, integer_t n) {
 		return n;
@@ -76,12 +83,12 @@ namespace std_dsp {
 	constexpr integer_t fast_reverse_count(double*, integer_t n) {
 		return n;
 	}
-
+/*
 	template <typename T>
 	inline
 	constexpr integer_t fast_count(const T& x, integer_t n) {
 		return (std::min)(fast_count(x, n), n);
-	}
+	}*/
 	template <typename T1, typename T2>
 	inline
 	constexpr integer_t fast_count(const T1& x, const T2& y, integer_t n) {

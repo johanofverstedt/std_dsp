@@ -12,8 +12,10 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <boost/align/aligned_allocator.hpp>
 
 int main(int argc, char** argv) {
+
 /*
 	std_dsp::buffer_t<std_dsp::static_storage<2, 256>> test_buf;
 	std_dsp::static_storage<2, 256> buf;
@@ -84,15 +86,37 @@ int main(int argc, char** argv) {
 */
 	}
 
-	std::vector<int> tv;
-	for(int i = 0; i < 256; ++i)
-		tv.push_back(i);
-	std_dsp::interleave_inplace2(tv.begin(), 256);//<decltype(tv.begin()), 16>
+	//std::vector<double> tv;//, boost::alignment::aligned_allocator<double, 16>> tv;
+	//for(int i = 0; i < 256; ++i)
+	//	tv.push_back(i);
+	const std::int64_t COUNT = 93;
+	std_dsp::stereo_buffer tv{COUNT};
+	for(int i = 0; i < COUNT * 2; ++i)
+		*(tv.begin(0) + i) = i;
 
-	for(int i = 0; i < 256; ++i) {
-		std::cout << tv[i] << " ";
+	std_dsp::interleave_inplace<double*, 1>(tv.begin(0), COUNT);
+	std_dsp::deinterleave_inplace<double*, 1>(tv.begin(0), COUNT);
+
+	//auto circ1 = std_dsp::make_circular_iterator(tv.begin(0), 200, 256);
+	//auto circ2 = std_dsp::make_circular_iterator(tv.begin(1), 28, 128);
+
+	//std::cout << &(tv[0]) << std::endl;
+	//std::cout << &(tv[1]) << std::endl;
+	//std::cout << &(tv[2]) << std::endl;
+	//std_dsp::width(circ1, 128, circ1, 0.5);
+	//std_dsp::width(tv.begin(0), tv.begin(0) + 128, 128, tv.begin(0), tv.begin(0) + 128, 0.5);
+	//std_dsp::interleave_inplace2(tv.begin(), 256);//<decltype(tv.begin()), 16>
+
+	for(int i = 0; i < COUNT; ++i) {
+		std::cout << tv.begin(0)[i] << " ";
+	}
+	std::cout << " : " << std::endl;
+	for(int i = COUNT; i < 2 * COUNT; ++i) {
+		std::cout << tv.begin(0)[i] << " ";
 	}
 
+	return 0;
+/*
 	auto tv_it = tv.begin();
 	for(int i = 0; i < 128; ++i) {
 		if(*tv_it != i) {
@@ -130,7 +154,7 @@ int main(int argc, char** argv) {
 
 	if(b != b2) {
 		abort();
-	}
+	}*/
 
 	const std::int64_t c = 8192;
 	const std::int64_t channels = 2;
@@ -165,7 +189,7 @@ int main(int argc, char** argv) {
 
 	double t3 = std_dsp::perf_time();
 	for(int k = 0; k < 128; ++k)
-		std_dsp::interleave_inplace2(s.begin(), c);
+		std_dsp::interleave_inplace(s.begin(), c);
 		//std_dsp::interleave_inplace<double*, 256LL>(s.begin(), c);
 	double t4 = std_dsp::perf_time();
 

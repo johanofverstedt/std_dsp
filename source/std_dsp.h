@@ -16,7 +16,11 @@
 
 #include "stateless_algorithms/mono.h"
 #include "stateless_algorithms/stereo.h"
-#include "stateless_algorithms/conversions.h"
+
+//Stereo
+
+#include "stereo/interleave.h"
+#include "stereo/stereo_transforms.h"
 
 //IO
 
