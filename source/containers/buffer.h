@@ -26,7 +26,7 @@ namespace std_dsp {
 		using const_iterator = typename STORAGE::const_iterator;
 
 		buffer_t() {}
-		buffer_t(difference_type n) { storage.resize(n); }
+		explicit buffer_t(difference_type n) { storage.resize(n); }
 
 		inline
 		channel_iterator<const_pointer> cbegin() const {
@@ -116,7 +116,7 @@ namespace std_dsp {
 
 		inline
 		void randomize(double a = -1.0, double b = 1.0) {
-			std_dsp::randomize(storage.channels() * storage.size(), begin(), a, b);
+			std_dsp::randomize(storage.channels() * storage.size(), *begin(), a, b);
 		}
 		inline
 		void randomize(integer_t n, double a = -1.0, double b = 1.0) {

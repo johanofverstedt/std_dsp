@@ -9,6 +9,7 @@
 
 #include "perf_time.h"
 
+#include <vector>
 #include <algorithm>
 #include <iostream>
 
@@ -83,6 +84,54 @@ int main(int argc, char** argv) {
 */
 	}
 
+	std::vector<int> tv;
+	for(int i = 0; i < 256; ++i)
+		tv.push_back(i);
+	std_dsp::interleave_inplace2(tv.begin(), 256);//<decltype(tv.begin()), 16>
+
+	for(int i = 0; i < 256; ++i) {
+		std::cout << tv[i] << " ";
+	}
+
+	auto tv_it = tv.begin();
+	for(int i = 0; i < 128; ++i) {
+		if(*tv_it != i) {
+			std::cout << std::endl << i << std::endl;
+			return -1;
+		}
+		++tv_it;
+
+		if(*tv_it != 128 + i) {
+			std::cout << std::endl << "*" << i << std::endl;
+			return -2;
+		}
+		++tv_it;
+	}
+	std_dsp::deinterleave_inplace<decltype(tv.begin()), 16>(tv.begin(), 128);
+
+	for(int i = 0; i < 256; ++i) {
+		if(tv[i] != i) {
+			std::cout << std::endl << "-3" << std::endl;
+			return -3;
+		}
+	}
+
+	std_dsp::buffer_t<std_dsp::dynamic_storage<2>> b{128};
+	b.randomize(-1.0, 1.0);
+	std_dsp::buffer_t<std_dsp::dynamic_storage<2>> b2{128};
+	std_dsp::copy(b[0], 128, b2[0]);
+	std_dsp::copy(b[1], 128, b2[1]);
+
+	std_dsp::interleave_inplace<double*, 16>(b[0], 128);
+	if(b == b2) {
+		abort();
+	}
+	std_dsp::deinterleave_inplace<double*, 16>(b[0], 128);
+
+	if(b != b2) {
+		abort();
+	}
+
 	const std::int64_t c = 8192;
 	const std::int64_t channels = 2;
 	const std::int64_t c2 = channels * c;
@@ -92,11 +141,11 @@ int main(int argc, char** argv) {
 		*(s.begin() + i) = i;
 	
 	std_dsp::interleave_inplace<double*, 64LL>(s.begin(), c);
-	std_dsp::split_inplace(s.begin(), c);
+	std_dsp::deinterleave_inplace(s.begin(), c);
 
 	double t1 = std_dsp::perf_time();
 	for(int k = 0; k < 128; ++k)
-		std_dsp::interleave_inplace<double*, 8192LL>(s.begin(), c);
+		std_dsp::interleave_inplace<double*, 128LL>(s.begin(), c);
 	double t2 = std_dsp::perf_time();
 
 	for(int i = 0; i < c2; ++i)
@@ -104,7 +153,7 @@ int main(int argc, char** argv) {
 
 	std::cout << std::endl;
 
-	std_dsp::split_inplace(s.begin(), c);
+	std_dsp::deinterleave_inplace(s.begin(), c);
 
 	for(int i = 0; i < c2; ++i)
 		std::cout << s.begin()[i] << " ";
@@ -112,11 +161,12 @@ int main(int argc, char** argv) {
 	std::cout << std::endl;
 
 	std_dsp::interleave_inplace<double*, 64LL>(s.begin(), c);
-	std_dsp::split_inplace(s.begin(), c);
+	std_dsp::deinterleave_inplace(s.begin(), c);
 
 	double t3 = std_dsp::perf_time();
 	for(int k = 0; k < 128; ++k)
-		std_dsp::interleave_inplace<double*,64LL>(s.begin(), c);
+		std_dsp::interleave_inplace2(s.begin(), c);
+		//std_dsp::interleave_inplace<double*, 256LL>(s.begin(), c);
 	double t4 = std_dsp::perf_time();
 
 	for(int i = 0; i < c2; ++i)
@@ -124,7 +174,7 @@ int main(int argc, char** argv) {
 
 	std::cout << std::endl;
 
-	std_dsp::split_inplace(s.begin(), c);
+	std_dsp::deinterleave_inplace(s.begin(), c);
 
 	for(int i = 0; i < c2; ++i)
 		std::cout << s.begin()[i] << " ";
@@ -136,5 +186,6 @@ int main(int argc, char** argv) {
 	float x2;
 	double y1[2];
 	std_dsp::interleave(&x1, &x2, 1, (double*)y1, std_dsp::float_to_double_op());
+
 	return 0;
 }

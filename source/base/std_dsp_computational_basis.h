@@ -28,22 +28,42 @@ namespace std_dsp {
 	template <typename N>
 	inline
 	vector2_t load2_from(const scalar_t* x, N n) { return _mm_load_pd(x + n); }
+	
+	inline
+	vector2_t load2u_from(const scalar_t* x) { return _mm_loadu_pd(x); }
+	
+	template <typename N>
+	inline
+	vector2_t load2u_from(const scalar_t* x, N n) { return _mm_loadu_pd(x + n); }
+	
 	inline
 	vector2_t load2_from(scalar_t x) { return _mm_set1_pd(x); }
+	
 	inline
 	vector2_t load2_from(scalar_t x, scalar_t y) { return _mm_set_pd(x, y); }
 
 	inline
 	void store2_to(scalar_t* x, vector2_t value) { _mm_store_pd(x, value); }
+
 	template <typename N>
 	inline
 	void store2_to(scalar_t* x, N n, vector2_t value) { _mm_store_pd(x + n, value); }
+
+	inline
+	void store2u_to(scalar_t* x, vector2_t value) { _mm_storeu_pd(x, value); }
+
+	template <typename N>
+	inline
+	void store2u_to(scalar_t* x, N n, vector2_t value) { _mm_storeu_pd(x + n, value); }
+
 	template <typename N>
 	inline
 	void store1_to(scalar_t* x, N n, vector2_t value) { _mm_store_ps(x + n, value); }
 
 	inline
 	vector2_t zero() { return _mm_setzero_pd(); }
+	inline
+	vector2_t negate(vector2_t x) { return _mm_sub_pd(zero(), x); }
 	inline
 	vector2_t add(vector2_t x, vector2_t y) { return _mm_add_pd(x, y); }
 	inline
