@@ -89,14 +89,31 @@ int main(int argc, char** argv) {
 	//std::vector<double> tv;//, boost::alignment::aligned_allocator<double, 16>> tv;
 	//for(int i = 0; i < 256; ++i)
 	//	tv.push_back(i);
-	const std::int64_t COUNT = 93;
+	const std::int64_t COUNT = 256;
 	std_dsp::stereo_buffer tv{COUNT};
+	std_dsp::stereo_buffer tv2{COUNT};
 	for(int i = 0; i < COUNT * 2; ++i)
 		*(tv.begin(0) + i) = i;
 
-	std_dsp::interleave_inplace<double*, 1>(tv.begin(0), COUNT);
-	std_dsp::deinterleave_inplace<double*, 1>(tv.begin(0), COUNT);
+	//std_dsp::deinterleave_inplace<double*, 1>(tv.begin(0), COUNT);
 
+	double tm3 = std_dsp::perf_time();
+	for(int k = 0; k < 256; ++k)
+	std_dsp::interleave_inplace<double*, 1>(tv.begin(0), COUNT);
+	double tm4 = std_dsp::perf_time();
+
+	double tm1 = std_dsp::perf_time();
+	for(int k = 0; k < 128; ++k) {
+		std_dsp::interleave(tv.begin(0), tv.begin(1), COUNT, tv2.begin(0));
+		std_dsp::deinterleave(tv2.begin(0), COUNT, tv.begin(0), tv.begin(1));
+	}
+	double tm2 = std_dsp::perf_time();
+	assert(std_dsp::check_is_interleaving(tv.begin(0), tv.begin(1), COUNT, tv2.begin(0)));
+
+
+
+	std::cout << "dt1: " << (tm2 - tm1) << std::endl;
+	std::cout << "dt2: " << (tm4 - tm3) << std::endl;
 	//auto circ1 = std_dsp::make_circular_iterator(tv.begin(0), 200, 256);
 	//auto circ2 = std_dsp::make_circular_iterator(tv.begin(1), 28, 128);
 
@@ -108,11 +125,11 @@ int main(int argc, char** argv) {
 	//std_dsp::interleave_inplace2(tv.begin(), 256);//<decltype(tv.begin()), 16>
 
 	for(int i = 0; i < COUNT; ++i) {
-		std::cout << tv.begin(0)[i] << " ";
+		std::cout << tv2.begin(0)[i] << " ";
 	}
 	std::cout << " : " << std::endl;
 	for(int i = COUNT; i < 2 * COUNT; ++i) {
-		std::cout << tv.begin(0)[i] << " ";
+		std::cout << tv2.begin(0)[i] << " ";
 	}
 
 	return 0;

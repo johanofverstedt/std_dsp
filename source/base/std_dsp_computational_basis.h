@@ -69,6 +69,12 @@ namespace std_dsp {
 	inline
 	vector2_t hadd(vector2_t x, vector2_t y) { return _mm_hadd_pd(x, y); }
 	inline
+	vector2_t add_hi_sub_lo(vector2_t x, vector2_t y) { return _mm_addsub_pd(x, y); }
+	inline
+	vector2_t interleave_lo(vector2_t x, vector2_t y) { return _mm_unpacklo_pd(x, y); }
+	inline
+	vector2_t interleave_hi(vector2_t x, vector2_t y) { return _mm_unpackhi_pd(x, y); }
+	inline
 	vector2_t subtract(vector2_t x, vector2_t y) { return _mm_sub_pd(x, y); }
 	inline
 	vector2_t multiply(vector2_t x, vector2_t y) { return _mm_mul_pd(x, y); }

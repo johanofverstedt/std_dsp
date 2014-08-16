@@ -48,7 +48,7 @@
 #include <algorithm>
 #include <array>
 
-#include "binary_counter.h"
+#include "../base/std_dsp_computational_basis.h"
 
 namespace std_dsp {
 	template <typename I, typename N, typename O>
@@ -99,6 +99,80 @@ namespace std_dsp {
 		}
 	};
 
+	namespace detail {
+		template <typename T>
+		struct interleave_op {
+			template <typename I1, typename I2, typename N, typename O>
+			void operator()(I1 first1, I2 first2, N n, O out) {
+				while(n) {
+					--n;
+			
+					*out = *first1;
+					++first1;
+					++out;
+
+					*out = *first2;
+					++first2;
+					++out;
+				}
+			}
+		};
+		template <>
+		struct interleave_op<double> {
+			template <typename I1, typename I2, typename N, typename O>
+			void operator()(I1 first1, I2 first2, N n, O out) {
+				if(check_alignment(first1, first2, out) && !is_odd_aligned(first1) && !is_odd_aligned(first2) && !is_odd_aligned(out)) {
+					while(n >= 8) {
+						n -= 8;
+			
+						vector2_t x1 = load2_from(first1, 0);
+						vector2_t x2 = load2_from(first1, 2);
+						vector2_t x3 = load2_from(first1, 4);
+						vector2_t x4 = load2_from(first1, 6);
+						vector2_t y1 = load2_from(first2, 0);
+						vector2_t y2 = load2_from(first2, 2);
+						vector2_t y3 = load2_from(first2, 4);
+						vector2_t y4 = load2_from(first2, 6);
+
+						vector2_t lo1 = interleave_lo(x1, y1);
+						vector2_t hi1 = interleave_hi(x1, y1);
+						vector2_t lo2 = interleave_lo(x2, y2);
+						vector2_t hi2 = interleave_hi(x2, y2);
+						vector2_t lo3 = interleave_lo(x3, y3);
+						vector2_t hi3 = interleave_hi(x3, y3);
+						vector2_t lo4 = interleave_lo(x4, y4);
+						vector2_t hi4 = interleave_hi(x4, y4);
+
+						store2_to(out, 0, lo1);
+						store2_to(out, 2, hi1);
+						store2_to(out, 4, lo2);
+						store2_to(out, 6, hi2);
+						store2_to(out, 8, lo3);
+						store2_to(out, 10, hi3);
+						store2_to(out, 12, lo4);
+						store2_to(out, 14, hi4);
+
+						first1 += 8;
+						first2 += 8;
+						out += 16;
+					}
+				}
+
+				while(n) {
+					--n;
+			
+					*out = *first1;
+					++first1;
+					++out;
+
+					*out = *first2;
+					++first2;
+					++out;
+				}		
+			}
+		};
+	}
+
 	//Interleaves the stereo signal from two separate source buffers into
 	//a single buffer.
 	//Preconditions:
@@ -118,17 +192,8 @@ namespace std_dsp {
 		static_assert(std::is_same<typename std::iterator_traits<I1>::value_type, typename std::iterator_traits<O>::value_type>::value,
 			"Mismatching value types.");
 
-		while(n) {
-			--n;
-			
-			*out = *first1;
-			++first1;
-			++out;
-
-			*out = *first2;
-			++first2;
-			++out;
-		}
+		detail::interleave_op<typename std::iterator_traits<I1>::value_type> op;
+		op(first1, first2, n, out);
 	}
 
 	template <typename I1, typename I2, typename N, typename O, typename Op>
@@ -156,6 +221,29 @@ namespace std_dsp {
 			++first2;
 			++out;
 		}
+	}
+
+	template <typename I1, typename I2, typename N, typename O>
+	// I1 models InputIterator
+	// I2 models InputIterator
+	// N models Integral
+	// O models OutputIterator
+	inline
+	bool check_is_interleaving(I1 first1, I2 first2, N n, O out) {
+		while(n) {
+			--n;
+			
+			if(*out != *first1)
+				return false;
+			++first1;
+			++out;
+
+			if(*out != *first2)
+				return false;
+			++first2;
+			++out;
+		}
+		return true;
 	}
 
 	//Interleaves the stereo signal from two separate source buffers into
@@ -200,6 +288,80 @@ namespace std_dsp {
 		}
 	}	
 
+	namespace detail {
+		template <typename T>
+		struct deinterleave_op {
+			template <typename I, typename N, typename O1, typename O2>
+			void operator()(I first, N n, O1 out1, O2 out2) {
+				while(n) {
+					--n;
+
+					*out1 = *first;
+					++first;
+					++out1;
+
+					*out2 = *first;
+					++first;
+					++out2;
+				}
+			}
+		};
+		template <>
+		struct deinterleave_op<double> {
+			template <typename I, typename N, typename O1, typename O2>
+			void operator()(I first, N n, O1 out1, O2 out2) {
+				if(check_alignment(first, out1, out2) && !is_odd_aligned(first) && !is_odd_aligned(out1) && !is_odd_aligned(out2)) {
+					while(n >= 8) {
+						n -= 8;
+			
+						vector2_t x1 = load2_from(first, 0);
+						vector2_t x2 = load2_from(first, 2);
+						vector2_t x3 = load2_from(first, 4);
+						vector2_t x4 = load2_from(first, 6);
+						vector2_t x5 = load2_from(first, 8);
+						vector2_t x6 = load2_from(first, 10);
+						vector2_t x7 = load2_from(first, 12);
+						vector2_t x8 = load2_from(first, 14);
+
+						vector2_t lo1 = interleave_lo(x1, x2);
+						vector2_t hi1 = interleave_hi(x1, x2);
+						vector2_t lo2 = interleave_lo(x3, x4);
+						vector2_t hi2 = interleave_hi(x3, x4);
+						vector2_t lo3 = interleave_lo(x5, x6);
+						vector2_t hi3 = interleave_hi(x5, x6);
+						vector2_t lo4 = interleave_lo(x7, x8);
+						vector2_t hi4 = interleave_hi(x7, x8);
+
+						store2_to(out1, 0, lo1);
+						store2_to(out1, 2, lo2);
+						store2_to(out1, 4, lo3);
+						store2_to(out1, 6, lo4);
+						store2_to(out2, 0, hi1);
+						store2_to(out2, 2, hi2);
+						store2_to(out2, 4, hi3);
+						store2_to(out2, 6, hi4);
+
+						first += 16;
+						out1 += 8;
+						out2 += 8;
+					}
+				}
+
+				while(n) {
+					--n;
+
+					*out1 = *first;
+					++first;
+					++out1;
+
+					*out2 = *first;
+					++first;
+					++out2;
+				}
+			}
+		};
+	}
+
 	//Splits an interleaved stereo signal into two separate destination buffers
 	//Preconditions:
 	//None of first, out1 and out2 overlaps
@@ -218,17 +380,8 @@ namespace std_dsp {
 		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, typename std::iterator_traits<O1>::value_type>::value,
 			"Mismatching value types.");
 
-		while(n) {
-			--n;
-
-			*out1 = *first;
-			++first;
-			++out1;
-
-			*out2 = *first;
-			++first;
-			++out2;
-		}
+		detail::deinterleave_op<typename std::iterator_traits<I>::value_type> op;
+		op(first, n, out1, out2);
 	}
 
 	template <typename I, typename N, typename O1, typename O2, typename Op>
@@ -363,67 +516,6 @@ namespace std_dsp {
 		deinterleave_inplace(x, half);
 		deinterleave_inplace(middle, remainder);
 		std::rotate(left, middle, right);
-	}
-
-	template <typename I>
-	void swap_sequences(I first1, I first2, std::int64_t n) {
-		while(n) {
-			--n;
-			std::swap(*first1, *first2);
-			++first1;
-			++first2;
-		}
-	}
-
-	template <typename I>
-	struct counter_value {
-		I first1;
-		I first2;
-		std::int64_t n;
-
-		counter_value() {}
-		counter_value(I first1, I first2, std::int64_t n) : first1(first1), first2(first2), n(n) {}
-
-		inline
-		friend
-		bool operator==(const counter_value& x, const counter_value& y) {
-			return x.first1 == y.first1 && x.first2 == y.first2 && x.n == y.n;
-		}
-		inline
-		friend
-		bool operator!=(const counter_value& x, const counter_value& y) {
-			return !(x == y);
-		}
-	};
-
-	template <typename I>
-	struct interleave_op {
-		inline
-		counter_value<I> operator()(counter_value<I> x, counter_value<I> y) {
-			if(x.n == y.n)
-				swap_sequences(x.first2, y.first1, x.n);
-			else
-				std::rotate(y.first1, y.first1 + y.n, x.first2 + x.n);
-			return counter_value<I>(x.first1, x.first2, x.n + y.n);
-		}		
-	};
-
-	template <typename I>
-	inline
-	void interleave_inplace_with_counter(I first, std::int64_t n) {
-		I end = first + (2*n);
-		I first2 = first + n;
-
-		binary_counter<interleave_op<I>, counter_value<I>> counter(interleave_op<I>(), counter_value<I>(end, end, 0));
-
-		while(n) {
-			--n;
-			counter.add(counter_value<I>(first, first2, 1));
-			++first;
-			++first2;
-		}
-
-		counter.reduce();
 	}
 }
 
