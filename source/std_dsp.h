@@ -22,6 +22,10 @@
 #include "stereo/interleave.h"
 #include "stereo/stereo_transforms.h"
 
+//Type conversions
+
+#include "cast/seq_cast.h"
+
 //IO
 
 #include "io/std_dsp_io.h"

@@ -51,54 +51,6 @@
 #include "../base/std_dsp_computational_basis.h"
 
 namespace std_dsp {
-	template <typename I, typename N, typename O>
-	// I models InputIterator (ValueType(I) = double)
-	// N models Integral
-	// O models OutputIterator (ValueType(O) = float)
-	inline
-	void double_to_float(I first, N n, O out) {
-		static_assert(std::is_integral<N>::value, "Count not integral.");
-		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, double>::value, "Input value type is not double.");
-		static_assert(std::is_same<typename std::iterator_traits<O>::value_type, float>::value, "Output value type is not float.");
-		
-		while(n) {
-			*out = static_cast<float>(*first);
-			--n;
-			++first;
-			++out;
-		}
-	}
-	template <typename I, typename N, typename O>
-	// I models InputIterator (ValueType(I) = float)
-	// N models Integral
-	// O models OutputIterator (ValueType(O) = double)
-	inline
-	void float_to_double(I first, N n, O out) {
-		static_assert(std::is_integral<N>::value, "Count not integral.");
-		static_assert(std::is_same<typename std::iterator_traits<I>::value_type, float>::value, "Input value type is not float.");
-		static_assert(std::is_same<typename std::iterator_traits<O>::value_type, double>::value, "Output value type is not double.");
-		
-		while(n) {
-			*out = static_cast<double>(*first);
-			--n;
-			++first;
-			++out;
-		}
-	}
-
-	struct double_to_float_op {
-		inline
-		float operator()(double x) {
-			return static_cast<float>(x);
-		}
-	};
-	struct float_to_double_op {
-		inline
-		double operator()(float x) {
-			return static_cast<double>(x);
-		}
-	};
-
 	namespace detail {
 		template <typename T>
 		struct interleave_op {

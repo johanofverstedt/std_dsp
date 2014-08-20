@@ -13,6 +13,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\gtest-1.7.0\src\gtest-all.cc" />
     <ClCompile Include="..\..\..\..\libs\gtest-1.7.0\src\gtest_main.cc" />
+    <ClCompile Include="..\..\source\test\cast\test_seq_cast.cpp" />
+    <ClCompile Include="..\..\source\test\stereo\test_interleave.cpp" />
     <ClCompile Include="..\..\tests\correctness\buffer_test.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

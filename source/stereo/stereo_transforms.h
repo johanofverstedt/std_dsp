@@ -114,6 +114,10 @@ namespace std_dsp {
 		auto operator()(std::pair<T, T> x) -> std::pair<T, T> {
 			return std::make_pair(x.second, x.first);
 		}
+		inline
+		vector2_t operator()(vector2_t x) {
+			return rotate(x);
+		}
 	};
 	struct duplicate_left_op {
 		template <typename T>
@@ -121,12 +125,20 @@ namespace std_dsp {
 		auto operator()(std::pair<T, T> x) -> std::pair<T, T> {
 			return std::make_pair(x.first, x.first);
 		}
+		inline
+		vector2_t operator()(vector2_t x) {
+			return interleave_lo(x, x);
+		}
 	};
 	struct duplicate_right_op {
 		template <typename T>
 		inline
 		auto operator()(std::pair<T, T> x) -> std::pair<T, T> {
 			return std::make_pair(x.second, x.second);
+		}
+		inline
+		vector2_t operator()(vector2_t x) {
+			return interleave_hi(x, x);
 		}
 	};
 
@@ -143,6 +155,20 @@ namespace std_dsp {
 			const auto y = 0.5 * (x.first + x.second);
 			return std::make_pair(y, y);
 		}
+		inline
+		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
+			static const vector2_t half = load2_from(0.5);
+			const vector2_t y = multiply(half, add(x.first, x.second));
+			return std::make_pair(y);
+		}
+		inline
+		vector2_t operator()(vector2_t x) {
+			static const vector2_t half = load2_from(0.5);
+			const vector2_t xr = rotate(x);
+
+			const vector2_t y = multiply(half, add(x.first, x.second));
+			return std::make_pair(y, y);
+		}
 	};
 	struct mid_side_op {
 		inline
@@ -157,6 +183,16 @@ namespace std_dsp {
 			const double s = (x.first - x.second);
 			return std::make_pair(m, s);
 		}
+		inline
+		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
+			const vector2_t m = add(x.first, x.second);
+			const vector2_t s = subtract(x.first, x.second);
+			return std::make_pair(m, s);
+		}
+		inline
+		vector2_t operator()(vector2_t x) {
+			return rotate(add_hi_sub_lo(x, x));
+		}		
 	};
 	struct mid_side_inv_op {
 		inline
@@ -171,6 +207,18 @@ namespace std_dsp {
 			const double r = 0.5 * (x.first - x.second);
 			return std::make_pair(l, r);
 		}
+		inline
+		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
+			static const vector2_t half = load2_from(0.5);
+			const vector2_t m = add(x.first, x.second);
+			const vector2_t s = subtract(x.first, x.second);
+			return std::make_pair(multiply(half, m), multiply(half, s));
+		}
+		inline
+		vector2_t operator()(vector2_t x) {
+			static const vector2_t half = load2_from(0.5);
+			return multiply(half, rotate(add_hi_sub_lo(x, x)));
+		}		
 	};
 	struct phase_invert_left_op {
 		inline
