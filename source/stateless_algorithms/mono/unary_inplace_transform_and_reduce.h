@@ -17,10 +17,10 @@ namespace std_dsp {
 
 		std::pair<std::size_t, std::size_t> partitions = unroll_partition_8(n);
 		while(partitions.first) {
-			vector2_t x0 = load2_from(first, 0);
-			vector2_t x1 = load2_from(first, 2);
-			vector2_t x2 = load2_from(first, 4);
-			vector2_t x3 = load2_from(first, 6);
+			double2_t x0 = load2(first, 0);
+			double2_t x1 = load2(first, 2);
+			double2_t x2 = load2(first, 4);
+			double2_t x3 = load2(first, 6);
 
 			partitions.first -= 8;
 
@@ -29,10 +29,10 @@ namespace std_dsp {
 			x2 = op(x2);
 			x3 = op(x3);
 
-			store2_to(first, 0, x0);
-			store2_to(first, 2, x1);
-			store2_to(first, 4, x2);
-			store2_to(first, 6, x3);
+			store2(first, 0, x0);
+			store2(first, 2, x1);
+			store2(first, 4, x2);
+			store2(first, 6, x3);
 
 			first += 8;
 		}

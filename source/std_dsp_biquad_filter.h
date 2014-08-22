@@ -73,43 +73,43 @@ namespace std_dsp {
 	template <>
 	class biquad_op<2> {
 	private:
-		vector2_t a1 = load2_from(c.a1);
-		vector2_t a2 = load2_from(c.a2);
-		vector2_t b0 = load2_from(c.b0);
-		vector2_t b1 = load2_from(c.b1);
-		vector2_t b2 = load2_from(c.b2);
+		double2_t a1 = load2(c.a1);
+		double2_t a2 = load2(c.a2);
+		double2_t b0 = load2(c.b0);
+		double2_t b1 = load2(c.b1);
+		double2_t b2 = load2(c.b2);
 
-		vector2_t w1;
-		vector2_t w2;
+		double2_t w1;
+		double2_t w2;
 	public:
 		biquad_op() {}
 		biquad_op(biquad_coeffs c, biquad_state<2> s) {
-			w1 = load2_from(s.w)
-			a1 = load2_from(c.a1);
-			a2 = load2_from(c.a2);
-			b0 = load2_from(c.b0);
-			b1 = load2_from(c.b1);
-			b2 = load2_from(c.b2);
+			w1 = load2(s.w)
+			a1 = load2(c.a1);
+			a2 = load2(c.a2);
+			b0 = load2(c.b0);
+			b1 = load2(c.b1);
+			b2 = load2(c.b2);
 
 			w1 = load2u_from(s.w1);
 			w2 = load2u_from(s.w2);
 		}
 		biquad_op(biquad_coeffs c1, biquad_coeffs c2, biquad_state<2> s) {
-			w1 = load2_from(s.w)
-			a1 = load2_from(c1.a1, c2.a1);
-			a2 = load2_from(c1.a2, c2.a2);
-			b0 = load2_from(c1.b0, c2.b0);
-			b1 = load2_from(c1.b1, c2.b1);
-			b2 = load2_from(c1.b2, c2.b2);
+			w1 = load2(s.w)
+			a1 = load2(c1.a1, c2.a1);
+			a2 = load2(c1.a2, c2.a2);
+			b0 = load2(c1.b0, c2.b0);
+			b1 = load2(c1.b1, c2.b1);
+			b2 = load2(c1.b2, c2.b2);
 
 			w1 = load2u_from(s.w1);
 			w2 = load2u_from(s.w2);
 		}
 
 		inline
-		vector2_t operator()(vector2_t in) {
-			vector2_t w0 = subtract(input, subtract(multiply(a1, w1), multiply(a2, w2)));
-			vector2_t result = add(multiply(b0, w0), add(multiply(b1, w1), multiply(b2, w2)));
+		double2_t operator()(double2_t in) {
+			double2_t w0 = subtract(input, subtract(multiply(a1, w1), multiply(a2, w2)));
+			double2_t result = add(multiply(b0, w0), add(multiply(b1, w1), multiply(b2, w2)));
 
 			w2 = w1;
 			w1 = w0;
@@ -154,8 +154,8 @@ namespace std_dsp {
 			while(n) {
 				--n;
 
-				vector2_t in = load2_from(first);
-				store2_to(out, op(in));
+				double2_t in = load2(first);
+				store2(out, op(in));
 
 				first += 2;
 				out += 2;
@@ -192,8 +192,8 @@ namespace std_dsp {
 			while(n) {
 				--n;
 
-				vector2_t in = load2_from(first);
-				store2_to(out, negate(op(in)));
+				double2_t in = load2(first);
+				store2(out, negate(op(in)));
 
 				first += 2;
 				out += 2;
@@ -230,9 +230,9 @@ namespace std_dsp {
 			while(n) {
 				--n;
 
-				vector2_t old_output = load2_from(out);
-				vector2_t in = load2_from(first);
-				store2_to(out, add(old_output, op(in)));
+				double2_t old_output = load2(out);
+				double2_t in = load2(first);
+				store2(out, add(old_output, op(in)));
 
 				first += 2;
 				out += 2;
@@ -269,9 +269,9 @@ namespace std_dsp {
 			while(n) {
 				--n;
 
-				vector2_t old_output = load2_from(out);
-				vector2_t in = load2_from(first);
-				store2_to(out, subtract(old_output, op(in)));
+				double2_t old_output = load2(out);
+				double2_t in = load2(first);
+				store2(out, subtract(old_output, op(in)));
 
 				first += 2;
 				out += 2;

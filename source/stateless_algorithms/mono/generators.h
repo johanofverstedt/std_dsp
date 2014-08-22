@@ -11,7 +11,7 @@ namespace std_dsp {
 	void generate(N n, double* out, Op op) {
 		if(op.is_const()) {
 			const double x1 = op.get1();
-			const vector2_t x2 = op.get2();
+			const double2_t x2 = op.get2();
 
 			if(is_odd_aligned(out)) {
 				*out = x1;
@@ -23,10 +23,10 @@ namespace std_dsp {
 			while(partitions.first) {
 				partitions.first -= 8;
 
-				store2_to(out, 0, x2);
-				store2_to(out, 2, x2);
-				store2_to(out, 4, x2);
-				store2_to(out, 6, x2);
+				store2(out, 0, x2);
+				store2(out, 2, x2);
+				store2(out, 4, x2);
+				store2(out, 6, x2);
 
 				out += 8;
 			}
@@ -47,15 +47,15 @@ namespace std_dsp {
 			while(partitions.first) {
 				partitions.first -= 8;
 
-				vector2_t x0 = op.get2();
-				vector2_t x1 = op.get2();
-				vector2_t x2 = op.get2();
-				vector2_t x3 = op.get2();
+				double2_t x0 = op.get2();
+				double2_t x1 = op.get2();
+				double2_t x2 = op.get2();
+				double2_t x3 = op.get2();
 
-				store2_to(out, x0);
-				store2_to(out + 2, x1);
-				store2_to(out + 4, x2);
-				store2_to(out + 6, x3);
+				store2(out, x0);
+				store2(out + 2, x1);
+				store2(out + 4, x2);
+				store2(out + 6, x3);
 
 				out += 8;
 			}

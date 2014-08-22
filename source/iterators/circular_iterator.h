@@ -156,14 +156,14 @@ namespace std_dsp {
 
 		inline
 		friend
-		vector2_t load2_from(circular_iterator it, integer_t n) {
-			return load2_from(it.offset, detail::wrap_forward(it.pos + n, it.size));
+		double2_t load2(circular_iterator it, integer_t n) {
+			return load2(it.offset, detail::wrap_forward(it.pos + n, it.size));
 		}
 
 		inline
 		friend
-		void store2_to(circular_iterator it, integer_t n, vector2_t value) {
-			store2_to(it.offset, detail::wrap_forward(it.pos + n, it.size), value);
+		void store2(circular_iterator it, integer_t n, double2_t value) {
+			store2(it.offset, detail::wrap_forward(it.pos + n, it.size), value);
 		}
 
 		inline

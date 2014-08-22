@@ -18,10 +18,10 @@ namespace std_dsp {
 
 		std::pair<std::size_t, std::size_t> partitions = unroll_partition_8(n);
 		while(partitions.first) {
-			vector2_t x0 = load2_from(first, 0);
-			vector2_t x1 = load2_from(first, 2);
-			vector2_t x2 = load2_from(first, 4);
-			vector2_t x3 = load2_from(first, 6);
+			double2_t x0 = load2(first, 0);
+			double2_t x1 = load2(first, 2);
+			double2_t x2 = load2(first, 4);
+			double2_t x3 = load2(first, 6);
 
 			first += 8;
 			partitions.first -= 8;

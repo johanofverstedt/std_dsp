@@ -45,31 +45,31 @@ namespace std_dsp {
 				while (n >= N(8)) {
 					n -= N(8);
 
-					vector2_t x1 = load2_from(first1, 0);
-					vector2_t x2 = load2_from(first1, 2);
-					vector2_t x3 = load2_from(first1, 4);
-					vector2_t x4 = load2_from(first1, 6);
-					vector2_t y1 = load2_from(first2, 0);
-					vector2_t y2 = load2_from(first2, 2);
-					vector2_t y3 = load2_from(first2, 4);
-					vector2_t y4 = load2_from(first2, 6);
+					double2_t x1 = load2(first1, 0);
+					double2_t x2 = load2(first1, 2);
+					double2_t x3 = load2(first1, 4);
+					double2_t x4 = load2(first1, 6);
+					double2_t y1 = load2(first2, 0);
+					double2_t y2 = load2(first2, 2);
+					double2_t y3 = load2(first2, 4);
+					double2_t y4 = load2(first2, 6);
 
 					first1 += 8;
 					first2 += 8;
 
-					std::pair<vector2_t, vector2_t> r1 = op(std::make_pair(x1, y1));
-					std::pair<vector2_t, vector2_t> r2 = op(std::make_pair(x2, y2));
-					std::pair<vector2_t, vector2_t> r3 = op(std::make_pair(x3, y3));
-					std::pair<vector2_t, vector2_t> r4 = op(std::make_pair(x4, y4));
+					std::pair<double2_t, double2_t> r1 = op(std::make_pair(x1, y1));
+					std::pair<double2_t, double2_t> r2 = op(std::make_pair(x2, y2));
+					std::pair<double2_t, double2_t> r3 = op(std::make_pair(x3, y3));
+					std::pair<double2_t, double2_t> r4 = op(std::make_pair(x4, y4));
 
-					store2_to(out1, 0, r1.first);
-					store2_to(out1, 2, r2.first);
-					store2_to(out1, 4, r3.first);
-					store2_to(out1, 6, r4.first);
-					store2_to(out2, 0, r1.second);
-					store2_to(out2, 2, r2.second);
-					store2_to(out2, 4, r3.second);
-					store2_to(out2, 6, r4.second);
+					store2(out1, 0, r1.first);
+					store2(out1, 2, r2.first);
+					store2(out1, 4, r3.first);
+					store2(out1, 6, r4.first);
+					store2(out2, 0, r1.second);
+					store2(out2, 2, r2.second);
+					store2(out2, 4, r3.second);
+					store2(out2, 6, r4.second);
 
 					out1 += 8;
 					out2 += 8;
@@ -125,14 +125,14 @@ namespace std_dsp {
 			while (n >= 8) {
 				n -= 8;
 
-				vector2_t x1 = load2_from(first, 0);
-				vector2_t x2 = load2_from(first, 2);
-				vector2_t x3 = load2_from(first, 4);
-				vector2_t x4 = load2_from(first, 6);
-				vector2_t x5 = load2_from(first, 8);
-				vector2_t x6 = load2_from(first, 10);
-				vector2_t x7 = load2_from(first, 12);
-				vector2_t x8 = load2_from(first, 14);
+				double2_t x1 = load2(first, 0);
+				double2_t x2 = load2(first, 2);
+				double2_t x3 = load2(first, 4);
+				double2_t x4 = load2(first, 6);
+				double2_t x5 = load2(first, 8);
+				double2_t x6 = load2(first, 10);
+				double2_t x7 = load2(first, 12);
+				double2_t x8 = load2(first, 14);
 
 				first += 16;
 
@@ -145,14 +145,14 @@ namespace std_dsp {
 				x7 = op(x7);
 				x8 = op(x8);
 
-				store2_to(out, 0, x1);
-				store2_to(out, 2, x2);
-				store2_to(out, 4, x3);
-				store2_to(out, 6, x4);
-				store2_to(out, 8, x5);
-				store2_to(out, 10, x6);
-				store2_to(out, 12, x7);
-				store2_to(out, 14, x8);
+				store2(out, 0, x1);
+				store2(out, 2, x2);
+				store2(out, 4, x3);
+				store2(out, 6, x4);
+				store2(out, 8, x5);
+				store2(out, 10, x6);
+				store2(out, 12, x7);
+				store2(out, 14, x8);
 
 				out += 16;
 			}
@@ -244,7 +244,7 @@ namespace std_dsp {
 			return std::make_pair(x.second, x.first);
 		}
 		inline
-		vector2_t operator()(vector2_t x) {
+		double2_t operator()(double2_t x) {
 			return rotate(x);
 		}
 	};
@@ -255,7 +255,7 @@ namespace std_dsp {
 			return std::make_pair(x.first, x.first);
 		}
 		inline
-		vector2_t operator()(vector2_t x) {
+		double2_t operator()(double2_t x) {
 			return interleave_lo(x, x);
 		}
 	};
@@ -266,7 +266,7 @@ namespace std_dsp {
 			return std::make_pair(x.second, x.second);
 		}
 		inline
-		vector2_t operator()(vector2_t x) {
+		double2_t operator()(double2_t x) {
 			return interleave_hi(x, x);
 		}
 	};
@@ -285,17 +285,17 @@ namespace std_dsp {
 			return std::make_pair(y, y);
 		}
 		inline
-		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
-			static const vector2_t half = load2_from(0.5);
-			const vector2_t y = multiply(half, add(x.first, x.second));
+		std::pair<double2_t, double2_t> operator()(std::pair<double2_t, double2_t> x) {
+			static const double2_t half = load2(0.5);
+			const double2_t y = multiply(half, add(x.first, x.second));
 			return std::make_pair(y, y);
 		}
 		inline
-		vector2_t operator()(vector2_t x) {
-			static const vector2_t half = load2_from(0.5);
-			const vector2_t xr = rotate(x);
+		double2_t operator()(double2_t x) {
+			static const double2_t half = load2(0.5);
+			const double2_t xr = rotate(x);
 
-			const vector2_t y = multiply(half, add(x, xr));
+			const double2_t y = multiply(half, add(x, xr));
 			return y;
 		}
 	};
@@ -313,13 +313,13 @@ namespace std_dsp {
 			return std::make_pair(m, s);
 		}
 		inline
-		std::pair<vector2_t, vector2_t> operator()(const std::pair<vector2_t, vector2_t>& x) {
-			const vector2_t m = add(x.first, x.second);
-			const vector2_t s = subtract(x.first, x.second);
+		std::pair<double2_t, double2_t> operator()(const std::pair<double2_t, double2_t>& x) {
+			const double2_t m = add(x.first, x.second);
+			const double2_t s = subtract(x.first, x.second);
 			return std::make_pair(m, s);
 		}
 		inline
-		vector2_t operator()(vector2_t x) {
+		double2_t operator()(double2_t x) {
 			return rotate(add_hi_sub_lo(x, x));
 		}		
 	};
@@ -337,15 +337,15 @@ namespace std_dsp {
 			return std::make_pair(l, r);
 		}
 		inline
-		std::pair<vector2_t, vector2_t> operator()(const std::pair<vector2_t, vector2_t>& x) {
-			static const vector2_t half = load2_from(0.5);
-			const vector2_t m = add(x.first, x.second);
-			const vector2_t s = subtract(x.first, x.second);
+		std::pair<double2_t, double2_t> operator()(const std::pair<double2_t, double2_t>& x) {
+			static const double2_t half = load2(0.5);
+			const double2_t m = add(x.first, x.second);
+			const double2_t s = subtract(x.first, x.second);
 			return std::make_pair(multiply(half, m), multiply(half, s));
 		}
 		inline
-		vector2_t operator()(vector2_t x) {
-			static const vector2_t half = load2_from(0.5);
+		double2_t operator()(double2_t x) {
+			static const double2_t half = load2(0.5);
 			return multiply(half, rotate(add_hi_sub_lo(x, x)));
 		}		
 	};

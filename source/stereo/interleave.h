@@ -77,32 +77,32 @@ namespace std_dsp {
 					while(n >= 8) {
 						n -= 8;
 			
-						vector2_t x1 = load2_from(first1, 0);
-						vector2_t x2 = load2_from(first1, 2);
-						vector2_t x3 = load2_from(first1, 4);
-						vector2_t x4 = load2_from(first1, 6);
-						vector2_t y1 = load2_from(first2, 0);
-						vector2_t y2 = load2_from(first2, 2);
-						vector2_t y3 = load2_from(first2, 4);
-						vector2_t y4 = load2_from(first2, 6);
+						double2_t x1 = load2(first1, 0);
+						double2_t x2 = load2(first1, 2);
+						double2_t x3 = load2(first1, 4);
+						double2_t x4 = load2(first1, 6);
+						double2_t y1 = load2(first2, 0);
+						double2_t y2 = load2(first2, 2);
+						double2_t y3 = load2(first2, 4);
+						double2_t y4 = load2(first2, 6);
 
-						vector2_t lo1 = interleave_lo(x1, y1);
-						vector2_t hi1 = interleave_hi(x1, y1);
-						vector2_t lo2 = interleave_lo(x2, y2);
-						vector2_t hi2 = interleave_hi(x2, y2);
-						vector2_t lo3 = interleave_lo(x3, y3);
-						vector2_t hi3 = interleave_hi(x3, y3);
-						vector2_t lo4 = interleave_lo(x4, y4);
-						vector2_t hi4 = interleave_hi(x4, y4);
+						double2_t lo1 = interleave_lo(x1, y1);
+						double2_t hi1 = interleave_hi(x1, y1);
+						double2_t lo2 = interleave_lo(x2, y2);
+						double2_t hi2 = interleave_hi(x2, y2);
+						double2_t lo3 = interleave_lo(x3, y3);
+						double2_t hi3 = interleave_hi(x3, y3);
+						double2_t lo4 = interleave_lo(x4, y4);
+						double2_t hi4 = interleave_hi(x4, y4);
 
-						store2_to(out, 0, lo1);
-						store2_to(out, 2, hi1);
-						store2_to(out, 4, lo2);
-						store2_to(out, 6, hi2);
-						store2_to(out, 8, lo3);
-						store2_to(out, 10, hi3);
-						store2_to(out, 12, lo4);
-						store2_to(out, 14, hi4);
+						store2(out, 0, lo1);
+						store2(out, 2, hi1);
+						store2(out, 4, lo2);
+						store2(out, 6, hi2);
+						store2(out, 8, lo3);
+						store2(out, 10, hi3);
+						store2(out, 12, lo4);
+						store2(out, 14, hi4);
 
 						first1 += 8;
 						first2 += 8;
@@ -266,32 +266,32 @@ namespace std_dsp {
 					while(n >= 8) {
 						n -= 8;
 			
-						vector2_t x1 = load2_from(first, 0);
-						vector2_t x2 = load2_from(first, 2);
-						vector2_t x3 = load2_from(first, 4);
-						vector2_t x4 = load2_from(first, 6);
-						vector2_t x5 = load2_from(first, 8);
-						vector2_t x6 = load2_from(first, 10);
-						vector2_t x7 = load2_from(first, 12);
-						vector2_t x8 = load2_from(first, 14);
+						double2_t x1 = load2(first, 0);
+						double2_t x2 = load2(first, 2);
+						double2_t x3 = load2(first, 4);
+						double2_t x4 = load2(first, 6);
+						double2_t x5 = load2(first, 8);
+						double2_t x6 = load2(first, 10);
+						double2_t x7 = load2(first, 12);
+						double2_t x8 = load2(first, 14);
 
-						vector2_t lo1 = interleave_lo(x1, x2);
-						vector2_t hi1 = interleave_hi(x1, x2);
-						vector2_t lo2 = interleave_lo(x3, x4);
-						vector2_t hi2 = interleave_hi(x3, x4);
-						vector2_t lo3 = interleave_lo(x5, x6);
-						vector2_t hi3 = interleave_hi(x5, x6);
-						vector2_t lo4 = interleave_lo(x7, x8);
-						vector2_t hi4 = interleave_hi(x7, x8);
+						double2_t lo1 = interleave_lo(x1, x2);
+						double2_t hi1 = interleave_hi(x1, x2);
+						double2_t lo2 = interleave_lo(x3, x4);
+						double2_t hi2 = interleave_hi(x3, x4);
+						double2_t lo3 = interleave_lo(x5, x6);
+						double2_t hi3 = interleave_hi(x5, x6);
+						double2_t lo4 = interleave_lo(x7, x8);
+						double2_t hi4 = interleave_hi(x7, x8);
 
-						store2_to(out1, 0, lo1);
-						store2_to(out1, 2, lo2);
-						store2_to(out1, 4, lo3);
-						store2_to(out1, 6, lo4);
-						store2_to(out2, 0, hi1);
-						store2_to(out2, 2, hi2);
-						store2_to(out2, 4, hi3);
-						store2_to(out2, 6, hi4);
+						store2(out1, 0, lo1);
+						store2(out1, 2, lo2);
+						store2(out1, 4, lo3);
+						store2(out1, 6, lo4);
+						store2(out2, 0, hi1);
+						store2(out2, 2, hi2);
+						store2(out2, 4, hi3);
+						store2(out2, 6, hi4);
 
 						first += 16;
 						out1 += 8;

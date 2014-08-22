@@ -48,9 +48,9 @@ void test_storage(S& s) {
 
 	if (SIZE >= 2) {
 		for (std_dsp::integer_t i = 0; i < CHANNELS; ++i) {
-			std_dsp::vector2_t x = std_dsp::load2_from(s.begin(i), 0);
+			std_dsp::double2_t x = std_dsp::load2(s.begin(i), 0);
 			x = std_dsp::add(x, x);
-			std_dsp::store2_to(s.begin(i), 0, x);
+			std_dsp::store2(s.begin(i), 0, x);
 
 			EXPECT_NEAR((i * 2.0), (s.begin(i))[0], 0.000001);
 			EXPECT_NEAR((i * 2.0), (s.begin(i))[1], 0.000001);

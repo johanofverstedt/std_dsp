@@ -97,14 +97,14 @@ namespace std_dsp {
 
 		inline
 		friend
-		vector2_t load2_from(reverse_iterator it, integer_t n) {
-			return rotate(load2_from(it.it, -(2 + n)));
+		double2_t load2(reverse_iterator it, integer_t n) {
+			return rotate(load2(it.it, -(2 + n)));
 		}
 
 		inline
 		friend
-		void store2_to(reverse_iterator it, integer_t n, vector2_t value) {
-			store2_to(it.it, -(2 + n), rotate(value));
+		void store2(reverse_iterator it, integer_t n, double2_t value) {
+			store2(it.it, -(2 + n), rotate(value));
 		}
 
 		inline
