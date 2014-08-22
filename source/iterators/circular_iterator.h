@@ -26,6 +26,14 @@ namespace std_dsp {
 			return i;
 		}
 		inline
+		integer_t wrap_bidirectional(integer_t i, integer_t buf_size) {
+			while (i >= buf_size)
+				return i - buf_size;
+			while (i < 0)
+				return i + buf_size;
+			return i;
+		}		
+		inline
 		integer_t wrap_forward_1(integer_t i, integer_t buf_size) {
 			if (i == buf_size)
 				return 0;
@@ -38,7 +46,7 @@ namespace std_dsp {
 			return i;
 		}
 		inline
-		integer_t wrap_bidirectional(integer_t i, integer_t buf_size) {
+		integer_t wrap_bidirectional_1(integer_t i, integer_t buf_size) {
 			if (i >= buf_size)
 				return i - buf_size;
 			if (i < 0)
@@ -183,7 +191,7 @@ namespace std_dsp {
 		friend
 		circular_iterator make_delay_iterator(circular_iterator it, integer_t delay) {
 			//assert(delay >= 0);
-			return circular_iterator(it, detail::wrap_reverse(it.pos - delay), it.size);
+			return circular_iterator(it,offset, detail::wrap_bidirectional(it.pos - delay), it.size);
 		}
 	};
 
