@@ -16,11 +16,11 @@ namespace std_dsp {
 
 	template <typename N>
 	inline
-	scalar_t load1_from(const scalar_t* x, N n) { return *(x + n); }
+	scalar_t load1(const scalar_t* x, N n) { return *(x + n); }
 
 	template <typename N>
 	inline
-	void store1_to(scalar_t* x, N n, scalar_t value) { *(x + n) = value; } 
+	void store1(scalar_t* x, N n, scalar_t value) { *(x + n) = value; } 
 
 #ifdef STD_DSP_SSE
 	using double2_t = __m128d;
@@ -30,11 +30,11 @@ namespace std_dsp {
 	double2_t load2(const scalar_t* x, N n) { return _mm_load_pd(x + n); }
 	
 	inline
-	double2_t load2u_from(const scalar_t* x) { return _mm_loadu_pd(x); }
+	double2_t load2u(const scalar_t* x) { return _mm_loadu_pd(x); }
 	
 	template <typename N>
 	inline
-	double2_t load2u_from(const scalar_t* x, N n) { return _mm_loadu_pd(x + n); }
+	double2_t load2u(const scalar_t* x, N n) { return _mm_loadu_pd(x + n); }
 	
 	inline
 	double2_t load2(scalar_t x) { return _mm_set1_pd(x); }
@@ -50,15 +50,15 @@ namespace std_dsp {
 	void store2(scalar_t* x, N n, double2_t value) { _mm_store_pd(x + n, value); }
 
 	inline
-	void store2u_to(scalar_t* x, double2_t value) { _mm_storeu_pd(x, value); }
+	void store2u(scalar_t* x, double2_t value) { _mm_storeu_pd(x, value); }
 
 	template <typename N>
 	inline
-	void store2u_to(scalar_t* x, N n, double2_t value) { _mm_storeu_pd(x + n, value); }
+	void store2u(scalar_t* x, N n, double2_t value) { _mm_storeu_pd(x + n, value); }
 
 	template <typename N>
 	inline
-	void store1_to(scalar_t* x, N n, double2_t value) { _mm_store_ps(x + n, value); }
+	void store1(scalar_t* x, N n, double2_t value) { _mm_store_ps(x + n, value); }
 
 	inline
 	double2_t zero() { return _mm_setzero_pd(); }

@@ -91,8 +91,8 @@ namespace std_dsp {
 			b1 = load2(c.b1);
 			b2 = load2(c.b2);
 
-			w1 = load2u_from(s.w1);
-			w2 = load2u_from(s.w2);
+			w1 = load2u(s.w1);
+			w2 = load2u(s.w2);
 		}
 		biquad_op(biquad_coeffs c1, biquad_coeffs c2, biquad_state<2> s) {
 			w1 = load2(s.w)
@@ -102,8 +102,8 @@ namespace std_dsp {
 			b1 = load2(c1.b1, c2.b1);
 			b2 = load2(c1.b2, c2.b2);
 
-			w1 = load2u_from(s.w1);
-			w2 = load2u_from(s.w2);
+			w1 = load2u(s.w1);
+			w2 = load2u(s.w2);
 		}
 
 		inline
@@ -120,8 +120,8 @@ namespace std_dsp {
 		inline
 		biquad_state<2> get_state() {
 			biquad_state<2> s;
-			store2u_to(s.w1, w1);
-			store2u_to(s.w2, w1);
+			store2u(s.w1, w1);
+			store2u(s.w2, w1);
 			s.undenormalize();
 			return s;
 		}
