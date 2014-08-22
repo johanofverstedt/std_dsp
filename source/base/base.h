@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <algorithm>
 
+#include "compare.h"
+
 #ifdef WIN32
 #define SSE_ALIGN __declspec(align(16))
 #define AVX_ALIGN __declspec(align(32))

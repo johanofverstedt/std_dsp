@@ -13,8 +13,10 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\gtest-1.7.0\src\gtest-all.cc" />
     <ClCompile Include="..\..\..\..\libs\gtest-1.7.0\src\gtest_main.cc" />
+    <ClCompile Include="..\..\source\test\base\test_mem.cpp" />
     <ClCompile Include="..\..\source\test\cast\test_seq_cast.cpp" />
     <ClCompile Include="..\..\source\test\stereo\test_interleave.cpp" />
+    <ClCompile Include="..\..\source\test\stereo\test_stereo_transforms.cpp" />
     <ClCompile Include="..\..\tests\correctness\buffer_test.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -61,6 +63,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -72,10 +75,11 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>false</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

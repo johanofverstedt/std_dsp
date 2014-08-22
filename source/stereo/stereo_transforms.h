@@ -11,31 +11,176 @@
 #include "../base/std_dsp_computational_basis.h"
 
 namespace std_dsp {
-	template <typename I1, typename I2, typename N, typename O1, typename O2, typename Op>
-	inline
-	void stereo_transform_inner_loop(I1 first1, I2 first2, N n, O1 out1, O2 out2, Op op) {
-		assert(n >= 0);
+	template <typename T>
+	struct stereo_transform_kernel {
+		template <typename I1, typename I2, typename N, typename O1, typename O2, typename Op>
+		inline
+		void operator()(I1 first1, I2 first2, N n, O1 out1, O2 out2, Op op) {
+			assert(n >= 0);
 
-		while(n) {
-			--n;
-		
-			auto result = op(std::make_pair(*first1, *first2));
+			while (n) {
+				--n;
 
-			++first1;
-			++first2;
+				auto result = op(std::make_pair(*first1, *first2));
 
-			*out1 = result.first;
-			*out2 = result.second;
+				++first1;
+				++first2;
 
-			++out1;
-			++out2;
+				*out1 = result.first;
+				*out2 = result.second;
+
+				++out1;
+				++out2;
+			}
 		}
-	}
-	
+	};
+	template <>
+	struct stereo_transform_kernel<double> {
+		template <typename I1, typename I2, typename N, typename O1, typename O2, typename Op>
+		inline
+		void operator()(I1 first1, I2 first2, N n, O1 out1, O2 out2, Op op) {
+			assert(n >= 0);
+
+			if (!is_odd_aligned(first1) && !is_odd_aligned(first2) && !is_odd_aligned(out1) && !is_odd_aligned(out2)) {
+				while (n >= N(8)) {
+					n -= N(8);
+
+					vector2_t x1 = load2_from(first1, 0);
+					vector2_t x2 = load2_from(first1, 2);
+					vector2_t x3 = load2_from(first1, 4);
+					vector2_t x4 = load2_from(first1, 6);
+					vector2_t y1 = load2_from(first2, 0);
+					vector2_t y2 = load2_from(first2, 2);
+					vector2_t y3 = load2_from(first2, 4);
+					vector2_t y4 = load2_from(first2, 6);
+
+					first1 += 8;
+					first2 += 8;
+
+					std::pair<vector2_t, vector2_t> r1 = op(std::make_pair(x1, y1));
+					std::pair<vector2_t, vector2_t> r2 = op(std::make_pair(x2, y2));
+					std::pair<vector2_t, vector2_t> r3 = op(std::make_pair(x3, y3));
+					std::pair<vector2_t, vector2_t> r4 = op(std::make_pair(x4, y4));
+
+					store2_to(out1, 0, r1.first);
+					store2_to(out1, 2, r2.first);
+					store2_to(out1, 4, r3.first);
+					store2_to(out1, 6, r4.first);
+					store2_to(out2, 0, r1.second);
+					store2_to(out2, 2, r2.second);
+					store2_to(out2, 4, r3.second);
+					store2_to(out2, 6, r4.second);
+
+					out1 += 8;
+					out2 += 8;
+				}
+			}
+
+			while (n) {
+				--n;
+
+				auto result = op(std::make_pair(*first1, *first2));
+
+				++first1;
+				++first2;
+
+				*out1 = result.first;
+				*out2 = result.second;
+
+				++out1;
+				++out2;
+			}
+		}
+	};
+
+	template <typename T>
+	struct stereo_transform_interleaved_kernel {
+		template <typename I, typename N, typename O, typename Op>
+		inline
+		void operator()(I first, N n, O out, Op op) {
+			while (n) {
+				--n;
+
+				auto x1 = *first;
+				++first;
+				auto x2 = *first;
+				++first;
+
+				auto result = op(std::make_pair(x1, x2));
+
+				*out = result.first;
+				++out;
+				*out = result.second;
+				++out;
+			}
+		}
+	};
+
+	template <>
+	struct stereo_transform_interleaved_kernel<double> {
+		template <typename I, typename N, typename O, typename Op>
+		inline
+		void operator()(I first, N n, O out, Op op) {
+
+			while (n >= 8) {
+				n -= 8;
+
+				vector2_t x1 = load2_from(first, 0);
+				vector2_t x2 = load2_from(first, 2);
+				vector2_t x3 = load2_from(first, 4);
+				vector2_t x4 = load2_from(first, 6);
+				vector2_t x5 = load2_from(first, 8);
+				vector2_t x6 = load2_from(first, 10);
+				vector2_t x7 = load2_from(first, 12);
+				vector2_t x8 = load2_from(first, 14);
+
+				first += 16;
+
+				x1 = op(x1);
+				x2 = op(x2);
+				x3 = op(x3);
+				x4 = op(x4);
+				x5 = op(x5);
+				x6 = op(x6);
+				x7 = op(x7);
+				x8 = op(x8);
+
+				store2_to(out, 0, x1);
+				store2_to(out, 2, x2);
+				store2_to(out, 4, x3);
+				store2_to(out, 6, x4);
+				store2_to(out, 8, x5);
+				store2_to(out, 10, x6);
+				store2_to(out, 12, x7);
+				store2_to(out, 14, x8);
+
+				out += 16;
+			}
+
+			while (n) {
+				--n;
+
+				auto x1 = *first;
+				++first;
+				auto x2 = *first;
+				++first;
+
+				auto result = op(std::make_pair(x1, x2));
+
+				*out = result.first;
+				++out;
+				*out = result.second;
+				++out;
+			}
+		}
+	};
+
 	template <typename I1, typename I2, typename N, typename O1, typename O2, typename Op>
 	inline
 	void stereo_transform(I1 first1, I2 first2, N n, O1 out1, O2 out2, Op op) {
 		assert(n >= 0);
+
+		stereo_transform_kernel<typename std::iterator_traits<I1>::value_type> kernel;
 
 		while(n) {
 			auto n_fast = fast_count(out2, fast_count(first1, first2, out1, n));
@@ -47,7 +192,7 @@ namespace std_dsp {
 			auto out1_fast = get_fast_iterator(out1);
 			auto out2_fast = get_fast_iterator(out2);
 
-			stereo_transform_inner_loop(first1_fast, first2_fast, n_fast, out1_fast, out2_fast, op);
+			kernel(first1_fast, first2_fast, n_fast, out1_fast, out2_fast, op);
 
 			first1 += n_fast;
 			first2 += n_fast;
@@ -57,27 +202,8 @@ namespace std_dsp {
 		}
 
 		if(n) {
-			stereo_transform_inner_loop(first1, first2, n, out1, out2, op);
-		}
-	}
-
-	template <typename I, typename N, typename O, typename Op>
-	inline
-	void stereo_transform_inner_loop(I first, N n, O out, Op op) {
-		while(n) {
-			--n;
-			
-			auto x1 = *first;
-			++first;
-			auto x2 = *first;
-			++first;
-
-			auto result = op(std::make_pair(x1, x2));
-
-			*out = result.first;
-			++out;
-			*out = result.second;
-			++out;
+			stereo_transform_kernel<bool> slow_kernel;
+			slow_kernel(first1, first2, n, out1, out2, op);
 		}
 	}
 
@@ -85,6 +211,8 @@ namespace std_dsp {
 	inline
 	void stereo_transform(I first, N n, O out, Op op) {
 		assert(n >= 0);
+
+		stereo_transform_interleaved_kernel<typename std::iterator_traits<I>::value_type> kernel;
 
 		while(n) {
 			auto n_fast = fast_count(first, out, 2*n);
@@ -94,7 +222,7 @@ namespace std_dsp {
 			auto first_fast = get_fast_iterator(first);
 			auto out_fast = get_fast_iterator(out);
 
-			stereo_transform_inner_loop(first_fast, n_fast_half, out_fast, op);
+			kernel(first_fast, n_fast_half, out_fast, op);
 
 			first += n_fast;
 			out += n_fast;
@@ -102,7 +230,8 @@ namespace std_dsp {
 		}
 
 		if(n) {
-			stereo_transform_inner_loop(first, n, out, op);
+			stereo_transform_interleaved_kernel<bool> slow_kernel;
+			slow_kernel(first, n, out, op);
 		}
 	}
 
@@ -111,7 +240,7 @@ namespace std_dsp {
 	struct swap_op {
 		template <typename T>
 		inline
-		auto operator()(std::pair<T, T> x) -> std::pair<T, T> {
+		auto operator()(const std::pair<T, T>& x) -> std::pair<T, T> {
 			return std::make_pair(x.second, x.first);
 		}
 		inline
@@ -159,15 +288,15 @@ namespace std_dsp {
 		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
 			static const vector2_t half = load2_from(0.5);
 			const vector2_t y = multiply(half, add(x.first, x.second));
-			return std::make_pair(y);
+			return std::make_pair(y, y);
 		}
 		inline
 		vector2_t operator()(vector2_t x) {
 			static const vector2_t half = load2_from(0.5);
 			const vector2_t xr = rotate(x);
 
-			const vector2_t y = multiply(half, add(x.first, x.second));
-			return std::make_pair(y, y);
+			const vector2_t y = multiply(half, add(x, xr));
+			return y;
 		}
 	};
 	struct mid_side_op {
@@ -184,7 +313,7 @@ namespace std_dsp {
 			return std::make_pair(m, s);
 		}
 		inline
-		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
+		std::pair<vector2_t, vector2_t> operator()(const std::pair<vector2_t, vector2_t>& x) {
 			const vector2_t m = add(x.first, x.second);
 			const vector2_t s = subtract(x.first, x.second);
 			return std::make_pair(m, s);
@@ -197,8 +326,8 @@ namespace std_dsp {
 	struct mid_side_inv_op {
 		inline
 		std::pair<float, float> operator()(std::pair<float, float> x) {
-			const float l = 0.5 * (x.first + x.second);
-			const float r = 0.5 * (x.first - x.second);
+			const float l = 0.5f * (x.first + x.second);
+			const float r = 0.5f * (x.first - x.second);
 			return std::make_pair(l, r);
 		}
 		inline
@@ -208,7 +337,7 @@ namespace std_dsp {
 			return std::make_pair(l, r);
 		}
 		inline
-		std::pair<vector2_t, vector2_t> operator()(std::pair<vector2_t, vector2_t> x) {
+		std::pair<vector2_t, vector2_t> operator()(const std::pair<vector2_t, vector2_t>& x) {
 			static const vector2_t half = load2_from(0.5);
 			const vector2_t m = add(x.first, x.second);
 			const vector2_t s = subtract(x.first, x.second);

@@ -147,6 +147,12 @@ namespace std_dsp {
 		bool operator!=(const transform_iterator& x, const transform_iterator& y) {
 			return !(x == y);
 		}
+
+		inline
+		friend
+		bool operator<(const transform_iterator& x, const transform_iterator& y) {
+			return x.it < y.it;
+		}
 	};
 
 	template <typename T, typename I>
