@@ -1,0 +1,124 @@
+
+//Test - desired syntax
+//Basic types:
+/**
+ * bool
+ * int
+ * double
+ * complex
+ * string
+ * signal, short for [double, length]
+ * [T, n] -> 1d-array
+ * [T, n, m] -> 2d-array
+ * [T, n, m, k] -> 3d-array
+ * [first, last, inc] -> lazy int range
+ */
+
+//Global precomputed buffer
+
+global x = compute_sin_table(8.0, 256);
+
+struct point2 {
+	x: double = 0.0 @ serialized("x");
+	y: double = 0.0 @ serialized("y");
+}
+
+func write_json(x: *T, name: string) -> string {
+	string s = name + " {";
+	for(z <- T) {
+		if(@serialized(z))
+			write_json(z, @serialized(z))
+	}
+}
+
+func write_json(x: double) -> string {
+	return string(x);
+}
+
+func write_json(x: int) -> string {
+	return string(x);
+}
+
+//global p = point2(7, 8);
+//p.x == 7;
+//p[1] == 8;
+
+//range functions:
+//r2 = range::take(r1, n)
+//r2 = range::drop(r1, n)
+//r2 = range::reverse(r1)
+//r2 = range::map(r1, f)
+//r2 = range::filter(r1, p)
+//r2 = range::render(r1)
+
+//r3 = range::interleave(r: [*T, n, m]) -> r: [T, n * m]
+//r3 = range::interleave(r1, r2)
+//r1, r2 = range::split(r)
+
+//r2, s = iir(r1, s, c)
+//r2, s = fir(r1, s, kernel)
+//r2, s = fade(r1, s, c)
+//rout, rin, s = pitch(r1, s, c)
+
+//typefunc value_type(r: [T, n]) -> T;
+//typefunc return_type(f: (...) -> T) -> T;
+
+//range && string concatenation
+// r1 :: r2
+// r1 :: c
+// c :: r1
+
+//Mix two signals into a single signal
+
+func mix2(s1: [signal, n], s2: [signal, n], c: [double, 2]) -> [signal, n], bool {
+	assert(channels(s1) == channels(s2));
+	print(channels(s1));
+	print(" ");
+	print(length(s1));
+	println(s1);
+	return s1*c1+s2*c2, true;
+}
+
+component mixer {
+	subcomponents {
+
+	}
+	state {
+
+	}
+	coeff {
+
+	}
+
+	impl reset() {
+
+	}
+
+	impl set_sample_rate(rate: int) {
+
+	}
+
+	impl set_block_size(block_size: int) {
+
+	}
+
+	impl resume() {
+
+	}
+
+	impl pause() {
+
+	}
+
+	impl process(in: [double, channels, count]) -> [double, channels, count] {
+		tmp: [buffer, 2] = in[0], in[1];
+		tmp[0] = in[2];
+
+		for i <- [0, channels, 1] {
+			for j <- [0, count, 1] {
+
+			}
+		}
+	}
+
+}
