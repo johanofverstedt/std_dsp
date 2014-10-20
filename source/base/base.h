@@ -35,31 +35,31 @@ namespace std_dsp {
 
 	template <typename I>
 	inline
-	constexpr I get_fast_iterator(I x) {
+	I get_fast_iterator(I x) {
 		return x;
 	}
 
 	template <typename T>
 	inline
-	constexpr bool supports_fast_processing(const T&) { return false; }
+	bool supports_fast_processing(const T&) { return false; }
 
 	inline
-	constexpr bool supports_fast_processing(const double*) {
+	bool supports_fast_processing(const double*) {
 		return true;
 	}
 	inline
-	constexpr bool supports_fast_processing(double*) {
+	bool supports_fast_processing(double*) {
 		return true;
 	}
 
 	template <typename T1, typename T2>
 	inline
-	constexpr bool supports_fast_processing(const T1& x, const T2& y) {
+	bool supports_fast_processing(const T1& x, const T2& y) {
 		return supports_fast_processing(x) && supports_fast_processing(y);
 	}
 	template <typename T1, typename T2, typename T3>
 	inline
-	constexpr bool supports_fast_processing(const T1& x, const T2& y, const T3& z) {
+	bool supports_fast_processing(const T1& x, const T2& y, const T3& z) {
 		return supports_fast_processing(x, y) && supports_fast_processing(z);
 	}
 
@@ -70,19 +70,19 @@ namespace std_dsp {
 	}
 
 	inline
-	constexpr integer_t fast_count(const double*, integer_t n) {
+	integer_t fast_count(const double*, integer_t n) {
 		return n;
 	}
 	inline
-	constexpr integer_t fast_count(double*, integer_t n) {
+	integer_t fast_count(double*, integer_t n) {
 		return n;
 	}
 	inline
-	constexpr integer_t fast_reverse_count(const double*, integer_t n) {
+	integer_t fast_reverse_count(const double*, integer_t n) {
 		return n;
 	}
 	inline
-	constexpr integer_t fast_reverse_count(double*, integer_t n) {
+	integer_t fast_reverse_count(double*, integer_t n) {
 		return n;
 	}
 /*
@@ -93,12 +93,12 @@ namespace std_dsp {
 	}*/
 	template <typename T1, typename T2>
 	inline
-	constexpr integer_t fast_count(const T1& x, const T2& y, integer_t n) {
+	integer_t fast_count(const T1& x, const T2& y, integer_t n) {
 		return (std::min)(fast_count(x, n), fast_count(y, n));
 	}
 	template <typename T1, typename T2, typename T3>
 	inline
-	constexpr integer_t fast_count(const T1& x, const T2& y, const T3& z, integer_t n) {
+	integer_t fast_count(const T1& x, const T2& y, const T3& z, integer_t n) {
 		return (std::min)(fast_count(x, y, n), fast_count(z, n));
 	}
 }

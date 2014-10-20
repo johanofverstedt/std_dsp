@@ -46,7 +46,7 @@ namespace std_dsp {
 	namespace detail {
 		template <typename N>
 		inline
-		constexpr N make_even(N n) {
+		N make_even(N n) {
 			if ((n & N(1)) == N(1))
 				return n + N(1);
 			return n;
